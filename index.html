@@ -746,3 +746,70 @@
                 <strong>📍 Coordinates:</strong> ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}<br>
                 <small style="color: #4ecdc4;">🎯 High-precision GPS • ${userLocation.accuracy ? Math.round(userLocation.accuracy) + 'm accuracy' : 'Maximum accuracy'}</small>
             `;
+
+                        // Set up event listeners for navigation
+            document.getElementById('closeMapBtn').addEventListener('click', function() {
+                document.getElementById('mapScreen').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+                populatePeopleGrid();
+            });
+
+            document.getElementById('backToMapBtn').addEventListener('click', function() {
+                document.getElementById('mainPage').style.display = 'none';
+                document.getElementById('mapScreen').style.display = 'block';
+            });
+        }
+
+        function populatePeopleGrid() {
+            const grid = document.getElementById('peopleGrid');
+            grid.innerHTML = '';
+
+            samplePeople.forEach((person, index) => {
+                const card = document.createElement('div');
+                card.className = 'person-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.innerHTML = `
+                    <div class="profile-photo" style="background-image: url('${person.photo}')"></div>
+                    <h3 class="person-name">${person.name} <span class="${person.online ? 'online-status' : 'offline-status'}"></span></h3>
+                    <p class="person-age">${person.age} years • ${person.specialty}</p>
+                    <p class="person-location">📍 ${person.location}</p>
+                    <p class="person-distance">${person.distance}</p>
+                    <p class="person-interests">${person.interests}</p>
+                    <div class="btn-container">
+                        <button class="connect-btn">🤝 Connect Instantly</button>
+                        <button class="view-profile-btn">👁️ View Full Profile</button>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+
+            // Add click handlers for all buttons
+            document.querySelectorAll('.connect-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alert('🚀 Connection request sent! The user will be notified immediately.');
+                });
+            });
+
+            document.querySelectorAll('.view-profile-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alert('🔍 Opening full profile with advanced details...');
+                });
+            });
+        }
+
+        // Initialize with animation delays for person cards
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.person-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+
+    <!-- Leaflet JS for maps (lightweight alternative to Google Maps) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</body>
+</html>
