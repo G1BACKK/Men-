@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>People Finder - Connect with People Near You</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <title>NexusConnect - Find People Near You</title>
     <style>
         * {
             margin: 0;
@@ -13,10 +12,11 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #f093fb 60%, #f5576c 100%);
             color: white;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
         .container {
@@ -26,217 +26,376 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Animated Background Elements */
+        .bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .circle1 { width: 80px; height: 80px; top: 10%; left: 10%; animation-delay: 0s; }
+        .circle2 { width: 120px; height: 120px; top: 60%; left: 80%; animation-delay: 5s; }
+        .circle3 { width: 100px; height: 100px; top: 30%; left: 70%; animation-delay: 10s; }
+        .circle4 { width: 60px; height: 60px; top: 80%; left: 20%; animation-delay: 15s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(90deg); }
+            50% { transform: translateY(-40px) rotate(180deg); }
+            75% { transform: translateY(-20px) rotate(270deg); }
         }
 
         .permission-screen {
             text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
             width: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .permission-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .permission-screen h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
         }
 
         .map-screen {
             display: none;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             text-align: center;
         }
 
         .map-container {
             width: 100%;
-            height: 500px;
-            border-radius: 20px;
+            height: 600px;
+            border-radius: 25px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
             margin: 20px 0;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
         }
 
         #map {
             width: 100%;
             height: 100%;
-        }
-
-        .close-map-btn {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-            color: white;
-            border: none;
-            padding: 12px 25px;
             border-radius: 25px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            margin-top: 20px;
         }
 
-        .close-map-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
         }
 
         .main-page {
             display: none;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             text-align: center;
         }
 
         .main-header {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            position: relative;
         }
 
         .main-header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.6)); }
         }
 
         .people-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
             padding: 20px;
         }
 
         .person-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
             text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideInUp 0.6s ease forwards;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: slideInUp 0.8s ease forwards;
             opacity: 0;
-            transform: translateY(50px);
+            transform: translateY(100px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .person-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .person-card:hover::before {
+            transform: translateX(100%);
         }
 
         .person-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-20px) scale(1.05);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .profile-photo {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            margin: 0 auto 20px;
+            margin: 0 auto 25px;
             border: 4px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .profile-photo::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .person-card:hover .profile-photo::after {
+            opacity: 1;
         }
 
         .person-card:hover .profile-photo {
-            transform: scale(1.1);
-            border-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.1) rotate(5deg);
         }
 
         .person-name {
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .person-age {
-            font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+            color: #feca57;
             margin-bottom: 10px;
+            font-weight: 600;
         }
 
         .person-location {
-            font-size: 1em;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: #4ecdc4;
+            margin-bottom: 10px;
+            font-weight: 500;
         }
 
         .person-distance {
-            font-size: 1.1em;
+            font-size: 1.3em;
             font-weight: bold;
-            color: #4CAF50;
+            color: #ff6b6b;
             margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
 
         .person-interests {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 20px;
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
             font-style: italic;
+            line-height: 1.4;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .connect-btn, .view-profile-btn {
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .connect-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            background: linear-gradient(45deg, #4CAF50, #45a049, #2E7D32);
             color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .connect-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
         }
 
         .view-profile-btn {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
             color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            width: 100%;
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
         }
 
-        .view-profile-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .connect-btn:hover, .view-profile-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .location-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            background: linear-gradient(45deg, #4CAF50, #45a049, #2E7D32, #1B5E20);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.4em;
+            font-weight: bold;
+            transition: all 0.4s ease;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .location-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .location-btn:hover::before {
+            left: 100%;
+        }
+
+        .location-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.6);
+        }
+
+        .close-map-btn, .back-to-map-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4);
             color: white;
             border: none;
             padding: 15px 30px;
-            border-radius: 30px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 1.2em;
             font-weight: bold;
             transition: all 0.3s ease;
-            margin-top: 20px;
+            margin: 20px;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
         }
 
-        .location-btn:hover {
+        .close-map-btn:hover, .back-to-map-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
         }
 
         .loading {
             display: none;
             text-align: center;
-            padding: 40px;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ff6b6b;
+            border-right: 4px solid #4ecdc4;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 30px;
+        }
+
+        .loading h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #fff;
         }
 
         @keyframes spin {
@@ -251,113 +410,143 @@
             }
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
         .location-info {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
             margin: 20px 0;
             text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .marker-popup {
-            text-align: center;
-            color: #333;
-        }
-
-        .marker-popup h3 {
-            margin-bottom: 5px;
-            color: #2c3e50;
+        .location-info h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #4ecdc4;
         }
 
         .online-status {
             display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 15px;
+            height: 15px;
             background: #4CAF50;
             border-radius: 50%;
             margin-left: 10px;
             animation: pulse 2s infinite;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
 
-        .back-to-map-btn {
-            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+        .offline-status {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            margin-left: 10px;
+            opacity: 0.7;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .permission-screen h1 { font-size: 2.2em; }
+            .main-header h1 { font-size: 2.5em; }
+            .people-grid { grid-template-columns: 1fr; gap: 20px; }
+            .person-card { padding: 25px; }
+            .btn-container { flex-direction: column; }
+        }
+
+        /* Map Markers Custom Style */
+        .custom-marker {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1.1em;
             font-weight: bold;
-            transition: all 0.3s ease;
-            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: bounce 2s infinite;
         }
 
-        .back-to-map-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
     </style>
 </head>
 <body>
+    <div class="bg-elements">
+        <div class="floating-circle circle1"></div>
+        <div class="floating-circle circle2"></div>
+        <div class="floating-circle circle3"></div>
+        <div class="floating-circle circle4"></div>
+    </div>
+
     <div class="container">
         <!-- Permission Screen -->
         <div id="permissionScreen" class="permission-screen">
-            <h1>🌍 Find People Near You</h1>
-            <p style="margin: 20px 0; font-size: 1.1em;">
-                Connect with interesting people in your area! <strong>Location access is required</strong> to show you nearby connections.
+            <h1>🚀 NexusConnect</h1>
+            <p style="margin: 25px 0; font-size: 1.3em; line-height: 1.6;">
+                Discover amazing people in your area using <strong>advanced location technology</strong>! 
+                Connect with like-minded individuals nearby.
             </p>
-            <p style="margin: 10px 0; font-size: 0.9em; color: rgba(255, 255, 255, 0.8);">
-                ⚠️ Please make sure to allow location access when prompted by your browser.
+            <p style="margin: 15px 0; font-size: 1em; color: rgba(255, 255, 255, 0.8);">
+                🔒 <strong>Privacy Protected</strong> • 🎯 <strong>Precise Location</strong> • ⚡ <strong>Instant Results</strong>
             </p>
-            <button id="locationBtn" class="location-btn pulse">
-                📍 Allow Location Access
+            <button id="locationBtn" class="location-btn">
+                🌍 Enable Smart Location
             </button>
         </div>
 
         <!-- Loading Screen -->
         <div id="loadingScreen" class="loading">
             <div class="spinner"></div>
-            <h2>Finding people near you...</h2>
-            <p>Please wait while we locate connections in your area</p>
+            <h2>🔍 Scanning Your Area...</h2>
+            <p style="font-size: 1.1em; color: rgba(255, 255, 255, 0.8);">
+                Using advanced algorithms to find people near you
+            </p>
         </div>
 
         <!-- Map Screen -->
         <div id="mapScreen" class="map-screen">
             <div class="location-info">
-                <h3>📍 Your Location & Nearby People</h3>
+                <h3>🎯 Location Locked & Loaded</h3>
                 <p id="locationText"></p>
-                <p style="margin-top: 10px; font-size: 0.9em;">Click on markers to see people's info • Found 5 people nearby</p>
+                <p style="margin-top: 15px; font-size: 1em; color: rgba(255, 255, 255, 0.8);">
+                    📍 <strong>5 People Found</strong> • 🗺️ <strong>Interactive Map</strong> • 📱 <strong>Real-time Updates</strong>
+                </p>
             </div>
             
             <div class="map-container">
                 <div id="map"></div>
+                <div class="map-overlay">
+                    <div>🚀 <strong>High-Tech Mode</strong></div>
+                    <div>⚡ Fast & Smooth</div>
+                    <div>📡 Real-time Tracking</div>
+                </div>
             </div>
             
             <button id="closeMapBtn" class="close-map-btn">
-                👥 View All Profiles
+                👥 View All Profiles • Advanced Mode
             </button>
         </div>
 
         <!-- Main Page -->
         <div id="mainPage" class="main-page">
             <button id="backToMapBtn" class="back-to-map-btn">
-                🗺️ Back to Map
+                🗺️ Back to Smart Map
             </button>
             
             <div class="main-header">
-                <h1>👥 People Near You</h1>
-                <p style="font-size: 1.2em; margin-top: 10px;">Connect with 5 amazing people in your area!</p>
+                <h1>🌟 People Near You</h1>
+                <p style="font-size: 1.4em; margin-top: 15px; color: rgba(255, 255, 255, 0.9);">
+                    5 Amazing Connections Waiting • <span style="color: #4ecdc4;">High-Tech Profiles</span>
+                </p>
             </div>
             
             <div id="peopleGrid" class="people-grid">
@@ -366,62 +555,69 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script>
         let map;
         let userLocation;
 
-        // Sample people data
+        // Enhanced people data with more details
         const samplePeople = [
             {
                 name: "Alex Johnson",
                 age: 28,
-                location: "Downtown",
+                location: "Tech District",
                 distance: "1.2 km away",
-                interests: "Photography, Hiking, Coffee",
+                interests: "AI Technology • Digital Photography • Mountain Hiking",
                 photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-                online: true
+                online: true,
+                specialty: "Software Engineer"
             },
             {
                 name: "Marcus Chen",
                 age: 32,
-                location: "City Center",
+                location: "Innovation Hub",
                 distance: "2.1 km away",
-                interests: "Technology, Gaming, Cooking",
+                interests: "Blockchain • Gaming Development • Gourmet Cooking",
                 photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-                online: true
+                online: true,
+                specialty: "Tech Entrepreneur"
             },
             {
                 name: "David Rodriguez",
                 age: 26,
-                location: "Riverside",
+                location: "Creative Quarter",
                 distance: "1.8 km away",
-                interests: "Music, Sports, Travel",
+                interests: "Electronic Music • Extreme Sports • World Travel",
                 photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-                online: false
+                online: false,
+                specialty: "Music Producer"
             },
             {
                 name: "James Wilson",
                 age: 30,
-                location: "Park District",
+                location: "Fitness Zone",
                 distance: "2.5 km away",
-                interests: "Fitness, Reading, Movies",
+                interests: "CrossFit Training • Sci-Fi Literature • Cinema",
                 photo: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face",
-                online: true
+                online: true,
+                specialty: "Fitness Coach"
             },
             {
                 name: "Michael Brown",
                 age: 29,
-                location: "Harbor Area",
+                location: "Art District",
                 distance: "3.0 km away",
-                interests: "Art, Design, Skateboarding",
+                interests: "Digital Art • UI/UX Design • Skateboarding",
                 photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face",
-                online: true
+                online: true,
+                specialty: "Creative Designer"
             }
         ];
 
-        // Get user location
+        // Enhanced location request with better error handling
         document.getElementById('locationBtn').addEventListener('click', function() {
+            this.innerHTML = '🔄 Activating GPS...';
+            this.disabled = true;
+            
             if (navigator.geolocation) {
                 document.getElementById('permissionScreen').style.display = 'none';
                 document.getElementById('loadingScreen').style.display = 'block';
@@ -430,151 +626,123 @@
                     function(position) {
                         userLocation = {
                             lat: position.coords.latitude,
-                            lng: position.coords.longitude
+                            lng: position.coords.longitude,
+                            accuracy: position.coords.accuracy
                         };
                         
                         setTimeout(() => {
                             initializeMap();
                             document.getElementById('loadingScreen').style.display = 'none';
                             document.getElementById('mapScreen').style.display = 'block';
-                        }, 2000);
+                        }, 2500);
                     },
                     function(error) {
-                        console.error('Error getting location:', error);
-                        alert('❌ Location access is required to find people near you. Please enable location permissions and try again.');
-                        document.getElementById('loadingScreen').style.display = 'none';
-                        document.getElementById('permissionScreen').style.display = 'block';
+                        console.error('Location error:', error);
+                        document.getElementById('loadingScreen').innerHTML = `
+                            <div class="spinner"></div>
+                            <h2>🚫 Location Access Required</h2>
+                            <p style="color: #ff6b6b; font-size: 1.1em;">
+                                Please enable location permissions in your browser settings and try again.
+                            </p>
+                            <button onclick="location.reload()" style="
+                                background: linear-gradient(45deg, #4CAF50, #45a049);
+                                color: white; border: none; padding: 15px 30px;
+                                border-radius: 25px; cursor: pointer; font-size: 1.1em;
+                                margin-top: 20px; font-weight: bold;
+                            ">🔄 Try Again</button>
+                        `;
                     },
                     {
                         enableHighAccuracy: true,
-                        timeout: 10000,
+                        timeout: 15000,
                         maximumAge: 0
                     }
                 );
             } else {
-                alert('❌ Geolocation is not supported by this browser. Please use a modern browser with location services.');
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('permissionScreen').style.display = 'block';
+                alert('🚫 Your browser does not support location services. Please use a modern browser.');
             }
         });
 
         function initializeMap() {
-            // Initialize map
-            map = L.map('map').setView([userLocation.lat, userLocation.lng], 13);
+            // Use OpenStreetMap with custom styling for better performance
+            map = L.map('map', {
+                zoomControl: true,
+                scrollWheelZoom: true,
+                doubleClickZoom: true,
+                boxZoom: true,
+                keyboard: true,
+                dragging: true,
+                touchZoom: true,
+                zoomAnimation: true,
+                fadeAnimation: true,
+                markerZoomAnimation: true
+            }).setView([userLocation.lat, userLocation.lng], 14);
 
-            // Add tile layer
+            // Add high-quality tile layer (faster loading)
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19,
+                tileSize: 256,
+                zoomOffset: 0,
+                detectRetina: true
             }).addTo(map);
 
-            // Add user location marker
-            const userMarker = L.marker([userLocation.lat, userLocation.lng])
-                .addTo(map)
-                .bindPopup('<div class="marker-popup"><h3>📍 You are here!</h3><p>Your current location</p></div>');
+            // Add user location marker with custom styling
+            const userIcon = L.divIcon({
+                html: '<div style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
+                iconSize: [20, 20],
+                className: 'custom-marker'
+            });
 
-            // Add people markers at different locations around user's REAL location
+            const userMarker = L.marker([userLocation.lat, userLocation.lng], {icon: userIcon})
+                .addTo(map)
+                .bindPopup(`
+                    <div style="text-align: center; padding: 10px; color: #333;">
+                        <h3 style="color: #2c3e50; margin-bottom: 10px;">🎯 You Are Here!</h3>
+                        <p><strong>Accuracy:</strong> ${userLocation.accuracy ? Math.round(userLocation.accuracy) + 'm' : 'High'}</p>
+                        <p style="color: #4CAF50; font-weight: bold;">📡 GPS Active</p>
+                    </div>
+                `);
+
+            // Add people markers with enhanced styling
             samplePeople.forEach((person, index) => {
-                // Generate locations within 5km radius of user's actual location
-                const distance = Math.random() * 0.05; // Up to ~5km radius
+                const distance = Math.random() * 0.05;
                 const angle = Math.random() * 2 * Math.PI;
                 const personLat = userLocation.lat + (distance * Math.cos(angle));
                 const personLng = userLocation.lng + (distance * Math.sin(angle));
                 
-                const personMarker = L.marker([personLat, personLng])
+                const personIcon = L.divIcon({
+                    html: `<div style="
+                        background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+                        width: 30px; height: 30px; border-radius: 50%;
+                        border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                        display: flex; align-items: center; justify-content: center;
+                        color: white; font-weight: bold; font-size: 12px;
+                    ">${index + 1}</div>`,
+                    iconSize: [30, 30],
+                    className: 'custom-marker'
+                });
+                
+                const personMarker = L.marker([personLat, personLng], {icon: personIcon})
                     .addTo(map)
-                    .bindPopup(`<div class="marker-popup">
-                        <img src="${person.photo}" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px;">
-                        <h3>👤 ${person.name}</h3>
-                        <p><strong>Age:</strong> ${person.age}</p>
-                        <p><strong>Location:</strong> ${person.location}</p>
-                        <p><strong>Distance:</strong> ${person.distance}</p>
-                        <p><strong>Interests:</strong> ${person.interests}</p>
-                        <p style="color: ${person.online ? '#4CAF50' : '#FF6B6B'};">
-                            ${person.online ? '🟢 Online' : '🔴 Offline'}
-                        </p>
-                    </div>`);
+                    .bindPopup(`
+                        <div style="text-align: center; padding: 15px; color: #333; min-width: 200px;">
+                            <img src="${person.photo}" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #4ecdc4;">
+                            <h3 style="color: #2c3e50; margin-bottom: 5px;">👤 ${person.name}</h3>
+                            <p><strong>Age:</strong> ${person.age} | <strong>${person.specialty}</strong></p>
+                            <p><strong>📍 Location:</strong> ${person.location}</p>
+                            <p><strong>📏 Distance:</strong> ${person.distance}</p>
+                            <p><strong>💡 Interests:</strong> ${person.interests}</p>
+                            <p style="color: ${person.online ? '#4CAF50' : '#ff6b6b'}; font-weight: bold;">
+                                ${person.online ? '🟢 Online Now' : '🔴 Last seen recently'}
+                            </p>
+                        </div>
+                    `);
             });
 
-            // Update location info with more details
+            // Update location info with enhanced details
             const locationText = document.getElementById('locationText');
             locationText.innerHTML = `
-                <strong>Coordinates:</strong> ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}<br>
-                <small style="color: rgba(255, 255, 255, 0.7);">🎯 Using your real GPS location</small>
+                <strong>📍 Coordinates:</strong> ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}<br>
+                <small style="color: #4ecdc4;">🎯 High-precision GPS • ${userLocation.accuracy ? Math.round(userLocation.accuracy) + 'm accuracy' : 'Maximum accuracy'}</small>
             `;
-        }
-
-        // Close map and show main page
-        document.getElementById('closeMapBtn').addEventListener('click', function() {
-            document.getElementById('mapScreen').style.display = 'none';
-            document.getElementById('mainPage').style.display = 'block';
-            showPeopleProfiles();
-        });
-
-        // Back to map
-        document.getElementById('backToMapBtn').addEventListener('click', function() {
-            document.getElementById('mainPage').style.display = 'none';
-            document.getElementById('mapScreen').style.display = 'block';
-        });
-
-        function showPeopleProfiles() {
-            const peopleGrid = document.getElementById('peopleGrid');
-            peopleGrid.innerHTML = ''; // Clear existing content
-            
-            samplePeople.forEach((person, index) => {
-                const personCard = document.createElement('div');
-                personCard.className = 'person-card';
-                personCard.style.animationDelay = `${index * 0.2}s`;
-                
-                personCard.innerHTML = `
-                    <img src="${person.photo}" alt="${person.name}" class="profile-photo">
-                    <div class="person-name">
-                        ${person.name}
-                        ${person.online ? '<span class="online-status"></span>' : ''}
-                    </div>
-                    <div class="person-age">Age: ${person.age}</div>
-                    <div class="person-location">📍 ${person.location}</div>
-                    <div class="person-distance">${person.distance}</div>
-                    <div class="person-interests">💭 ${person.interests}</div>
-                    <button class="connect-btn" onclick="connectWithPerson('${person.name}')">
-                        💬 Connect
-                    </button>
-                    <button class="view-profile-btn" onclick="viewProfile('${person.name}')">
-                        👤 View Profile
-                    </button>
-                `;
-                
-                peopleGrid.appendChild(personCard);
-            });
-        }
-
-        function connectWithPerson(name) {
-            const person = samplePeople.find(p => p.name === name);
-            if (person) {
-                alert(`🎉 Connection request sent to ${name}! They will be notified.\n\n✨ ${name} is interested in: ${person.interests}`);
-            }
-        }
-
-        function viewProfile(name) {
-            const person = samplePeople.find(p => p.name === name);
-            if (person) {
-                alert(`👤 ${name}'s Profile\n\n🎂 Age: ${person.age}\n📍 Location: ${person.location}\n📏 Distance: ${person.distance}\n💭 Interests: ${person.interests}\n🔗 Status: ${person.online ? 'Online' : 'Offline'}\n\n💡 Full profile feature coming soon!`);
-            }
-        }
-
-        // Test function to verify all components work
-        function testApplication() {
-            console.log('Testing Application Components:');
-            console.log('✅ Permission Screen: Ready');
-            console.log('✅ Location API: Available');
-            console.log('✅ Map Library: Loaded');
-            console.log('✅ People Data: Ready');
-            console.log('✅ Navigation: Functional');
-            console.log('✅ Animations: Active');
-            console.log('🌟 Application is fully functional!');
-        }
-
-        // Run test on page load
-        window.addEventListener('load', testApplication);
-    </script>
-</body>
-</html>
