@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G1BACK Button Test</title>
     <style>
         body { margin: 0; padding: 0; }
         #frame-container {
@@ -18,6 +20,27 @@
             height: 100%;
             border: none;
         }
+        #g1back-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #FF5722, #E91E63);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none; /* Hidden by default */
+            transition: all 0.3s ease;
+        }
+        #g1back-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -30,16 +53,47 @@
         </iframe>
     </div>
     
+    <!-- G1BACK Button (Hidden by Default) -->
+    <button id="g1back-button">G1BACK</button>
+    
     <script>
-        // Fallback if iframe fails
-        document.getElementById('website-iframe').onload = function() {
+        const g1backButton = document.getElementById('g1back-button');
+        const iframe = document.getElementById('website-iframe');
+
+        // Method 1: Check if URL contains 'payment' (if same-origin allows)
+        function checkIfPaymentPage() {
             try {
-                if (this.contentWindow.location.hostname !== 'whttps://www.tcvvip12.com/me') {
-                    window.open('https://www.tcvvip12.com/register?invite_code=AF6E714633497', '_blank');
+                const iframeUrl = iframe.contentWindow.location.href;
+                if (iframeUrl.includes('/payment')) {
+                    g1backButton.style.display = 'block';
+                } else {
+                    g1backButton.style.display = 'none';
                 }
             } catch (e) {
-                window.open('https://www.tcvvip12.com/register?invite_code=AF6E714633497', '_blank');
+                // Cross-origin error, use fallback
+                console.log("Cannot read iframe URL (cross-origin restriction).");
             }
+        }
+
+        // Method 2: Listen for postMessage from iframe (if tcvvip12.com supports it)
+        window.addEventListener('message', (event) => {
+            if (event.data === 'payment-page-loaded') {
+                g1backButton.style.display = 'block';
+            }
+        });
+
+        // Check every 2 seconds (fallback)
+        setInterval(checkIfPaymentPage, 2000);
+
+        // Button Click Action
+        g1backButton.addEventListener('click', () => {
+            alert("G1BACK button clicked!"); // Replace with your action
+            // Example: window.open('https://www.tcvvip12.com/payment', '_blank');
+        });
+
+        // Fallback if iframe fails to load
+        iframe.onerror = () => {
+            window.open('https://www.tcvvip12.com/register?invite_code=AF6E714633497', '_blank');
         };
     </script>
 </body>
