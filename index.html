@@ -3,353 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Security Testing Dashboard</title>
+    <title>Enhanced G1BACK Button</title>
     <style>
-        body {
-            font-family: 'Consolas', monospace;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+        body { 
+            margin: 0; 
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
-        .test-section {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-            font-family: inherit;
-        }
-        button:hover {
-            opacity: 0.9;
-        }
-        button.danger {
-            background: #f44336;
-        }
-        #results {
-            background: #333;
-            color: #0f0;
-            padding: 15px;
-            border-radius: 4px;
-            font-size: 14px;
-            min-height: 100px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-        }
-        .warning {
-            color: #f44336;
-            font-weight: bold;
-            padding: 15px;
-            border: 1px solid #f44336;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            width: 300px;
-            padding: 8px;
-            margin-right: 10px;
-        }
-        #frameContainer {
-            margin-top: 15px;
-            border: 1px dashed #ccc;
-            min-height: 200px;
-            position: relative;
-        }
-        #frameOverlay {
-            position: absolute;
+        #frame-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: #f5f5f5;
+        }
+        #website-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transition: opacity 0.3s ease;
+        }
+        #g1back-button {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #FF5722 0%, #E91E63 100%);
             color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            display: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        #g1back-button.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #g1back-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        #g1back-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            pointer-events: none;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #FF5722;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="warning">
-        ⚠️ WARNING: This tool is for AUTHORIZED SECURITY TESTING only. 
-        Unauthorized use is illegal. By proceeding, you confirm you have 
-        permission to test the target system.
+    <div id="loading-overlay">
+        <div class="spinner"></div>
     </div>
-
-    <h1>Enhanced Security Testing Dashboard</h1>
     
-    <div class="test-section">
-        <h2>1. Target Configuration</h2>
-        <input type="text" id="targetUrl" placeholder="Enter authorized test URL" value="https://www.tcvvip12.com/register?invite_code=AF6E714633497">
-        <button id="loadFrame">Load Frame</button>
-        <div id="frameContainer">
-            <div id="frameOverlay">Frame will load here</div>
-        </div>
+    <div id="frame-container">
+        <iframe 
+            id="website-iframe"
+            src="https://www.jalwagame.win/#/register?invitationCode=57357202283"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation allow-storage-access-by-user-activation"
+            allow="fullscreen"
+            loading="eager">
+        </iframe>
     </div>
-
-    <div class="test-section">
-        <h2>2. Session Management Tests</h2>
-        <button id="checkCookies">Check Iframe Cookies</button>
-        <button id="checkStorage">Check Storage Access</button>
-        <button id="checkSession">Test Session Persistence</button>
-        <pre id="cookieResults">Results will appear here...</pre>
-    </div>
-
-    <div class="test-section">
-        <h2>3. Communication Tests</h2>
-        <button id="sendMessage">Send Test Message</button>
-        <button id="checkCORS">Test CORS Headers</button>
-        <pre id="messageResults">Message log will appear here...</pre>
-    </div>
-
-    <div class="test-section">
-        <h2>4. Security Headers Test</h2>
-        <button id="checkHeaders">Check Security Headers</button>
-        <pre id="headersResults">Headers will appear here...</pre>
-    </div>
-
-    <div class="test-section">
-        <h2>5. Advanced Tests</h2>
-        <button id="testClickjacking">Test Clickjacking Protection</button>
-        <button id="testCSRF" class="danger">Test CSRF Protection (Danger)</button>
-        <pre id="advancedResults">Advanced test results...</pre>
-    </div>
-
-    <div id="results">Test results will appear here...</div>
-
+    
+    <button id="g1back-button">G1BACK</button>
+    
     <script>
-        // DOM elements
-        const resultsEl = document.getElementById('results');
-        const cookieResults = document.getElementById('cookieResults');
-        const messageResults = document.getElementById('messageResults');
-        const headersResults = document.getElementById('headersResults');
-        const advancedResults = document.getElementById('advancedResults');
-        const frameContainer = document.getElementById('frameContainer');
-        const frameOverlay = document.getElementById('frameOverlay');
-        let currentIframe = null;
-
-        // 1. Frame Loading
-        document.getElementById('loadFrame').addEventListener('click', () => {
-            const url = document.getElementById('targetUrl').value.trim();
-            if (!url) {
-                logResult("Please enter a valid URL");
-                return;
-            }
-            
-            // Validate URL format
-            try {
-                new URL(url);
-            } catch (e) {
-                logResult("Invalid URL format: " + e.message);
-                return;
-            }
-            
-            frameContainer.innerHTML = '';
-            currentIframe = document.createElement('iframe');
-            currentIframe.src = url;
-            currentIframe.style.width = '100%';
-            currentIframe.style.height = '400px';
-            currentIframe.style.border = '1px solid #ddd';
-            
-            currentIframe.onload = () => {
-                frameOverlay.style.display = 'none';
-                logResult("Successfully loaded frame with URL: " + url);
-            };
-            
-            currentIframe.onerror = () => {
-                logResult("Failed to load frame: " + url);
-            };
-            
-            frameContainer.appendChild(currentIframe);
-            frameOverlay.style.display = 'flex';
-            frameOverlay.textContent = "Loading frame...";
+        const g1backButton = document.getElementById('g1back-button');
+        const iframe = document.getElementById('website-iframe');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        
+        // Improved URL detection with fallbacks
+        const paymentPages = ['/payment', '/checkout', '/deposit', '/premium'];
+        const userPages = ['/me', '/account', '/dashboard', '/profile'];
+        const authPages = ['/login', '/register', '/signup', '/auth'];
+        
+        // Show loading overlay initially
+        loadingOverlay.style.display = 'flex';
+        
+        // Hide loading when iframe loads
+        iframe.addEventListener('load', () => {
+            setTimeout(() => {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            }, 1000);
         });
-
-        // 2. Session Management Tests
-        document.getElementById('checkCookies').addEventListener('click', () => {
-            if (!currentIframe) {
-                logResult("Please load a frame first");
-                return;
-            }
-            
-            logResult("Attempting to read cookies from iframe...");
-            
+        
+        // Enhanced URL checker with error handling
+        function checkIfShowButton() {
             try {
-                const cookies = currentIframe.contentDocument.cookie;
-                if (cookies) {
-                    logResult("Cookies found: " + cookies);
-                    cookieResults.textContent = cookies;
-                } else {
-                    logResult("No cookies found or blocked by Same Origin Policy");
-                    cookieResults.textContent = "No cookies accessible due to Same Origin Policy";
+                const iframeUrl = iframe.contentWindow.location.href.toLowerCase();
+                
+                // Check for payment or user pages
+                const shouldShow = paymentPages.some(path => iframeUrl.includes(path)) || 
+                                  userPages.some(path => iframeUrl.includes(path));
+                
+                // Check for auth pages to hide button
+                const shouldHide = authPages.some(path => iframeUrl.includes(path));
+                
+                if (shouldShow) {
+                    showButton();
+                } else if (shouldHide) {
+                    hideButton();
                 }
             } catch (e) {
-                logResult("Error accessing cookies: " + e.message);
-                cookieResults.textContent = "Error: " + e.message;
-            }
-        });
-
-        document.getElementById('checkStorage').addEventListener('click', () => {
-            if (!currentIframe) {
-                logResult("Please load a frame first");
-                return;
-            }
-            
-            logResult("Attempting to access storage from iframe...");
-            
-            try {
-                const testKey = 'security_test_' + Date.now();
-                currentIframe.contentWindow.localStorage.setItem(testKey, 'test_value');
-                const value = currentIframe.contentWindow.localStorage.getItem(testKey);
-                currentIframe.contentWindow.localStorage.removeItem(testKey);
-                
-                if (value === 'test_value') {
-                    logResult("LocalStorage access successful");
-                    cookieResults.textContent += "\nLocalStorage: Accessible";
-                } else {
-                    logResult("LocalStorage access failed");
-                    cookieResults.textContent += "\nLocalStorage: Blocked";
+                // Cross-origin error handling
+                console.log("Cross-origin restriction - using fallback methods");
+                // Fallback to checking iframe src attribute
+                const iframeSrc = iframe.src.toLowerCase();
+                if (paymentPages.some(path => iframeSrc.includes(path))) {
+                    showButton();
                 }
-            } catch (e) {
-                logResult("Error accessing storage: " + e.message);
-                cookieResults.textContent += "\nStorage Error: " + e.message;
             }
-        });
-
-        // 3. Communication Tests
-        document.getElementById('sendMessage').addEventListener('click', () => {
-            if (!currentIframe) {
-                logResult("Please load a frame first");
-                return;
-            }
-            
-            const testMessage = {
-                type: "security_test",
-                timestamp: new Date().toISOString(),
-                testId: "msg_" + Math.random().toString(36).substr(2, 9)
-            };
-            
-            logResult("Sending test message to iframe...");
-            currentIframe.contentWindow.postMessage(testMessage, '*');
-            messageResults.textContent += "Sent: " + JSON.stringify(testMessage, null, 2) + "\n";
-        });
-
-        // Listen for all messages
-        window.addEventListener('message', (event) => {
-            messageResults.textContent += "Received from " + event.origin + ":\n" + 
-                JSON.stringify(event.data, null, 2) + "\n";
-            logResult("Message received from origin: " + event.origin);
-        });
-
-        // 4. Security Headers Test
-        document.getElementById('checkHeaders').addEventListener('click', async () => {
-            const url = document.getElementById('targetUrl').value.trim();
-            if (!url) {
-                logResult("Please enter a valid URL");
-                return;
-            }
-            
-            try {
-                logResult("Fetching headers for: " + url);
-                const response = await fetch(url, {
-                    method: 'HEAD',
-                    mode: 'no-cors',
-                    redirect: 'manual'
-                });
-                
-                let headersText = "";
-                for (const [key, value] of response.headers.entries()) {
-                    headersText += `${key}: ${value}\n`;
-                }
-                
-                headersResults.textContent = headersText;
-                logResult("Successfully retrieved headers");
-                
-                // Check for important security headers
-                const securityHeaders = [
-                    'content-security-policy',
-                    'x-frame-options',
-                    'strict-transport-security',
-                    'x-content-type-options',
-                    'referrer-policy'
-                ];
-                
-                const missingHeaders = securityHeaders.filter(h => !response.headers.has(h));
-                if (missingHeaders.length > 0) {
-                    logResult("WARNING: Missing security headers: " + missingHeaders.join(', '));
-                }
-            } catch (e) {
-                logResult("Error fetching headers: " + e.message);
-                headersResults.textContent = "Error: " + e.message;
-            }
-        });
-
-        // 5. Advanced Tests
-        document.getElementById('testClickjacking').addEventListener('click', () => {
-            if (!currentIframe) {
-                logResult("Please load a frame first");
-                return;
-            }
-            
-            logResult("Testing clickjacking protection...");
-            
-            // Check X-Frame-Options header if available
-            if (headersResults.textContent.includes('X-Frame-Options')) {
-                advancedResults.textContent = "X-Frame-Options header detected (good protection)";
-                logResult("Clickjacking protection detected via X-Frame-Options");
-                return;
-            }
-            
-            // Check frame loading behavior
-            try {
-                const testFrame = document.createElement('iframe');
-                testFrame.src = currentIframe.src;
-                testFrame.style.position = 'absolute';
-                testFrame.style.top = '0';
-                testFrame.style.left = '0';
-                testFrame.style.width = '100px';
-                testFrame.style.height = '100px';
-                testFrame.style.opacity = '0.5';
-                testFrame.style.zIndex = '99999';
-                
-                testFrame.onload = () => {
-                    advancedResults.textContent = "Frame loaded successfully - potential clickjacking vulnerability";
-                    logResult("WARNING: Frame loaded without X-Frame-Options protection");
-                    document.body.removeChild(testFrame);
-                };
-                
-                testFrame.onerror = () => {
-                    advancedResults.textContent = "Frame blocked - clickjacking protection in place";
-                    logResult("Frame blocked - good clickjacking protection");
-                };
-                
-                document.body.appendChild(testFrame);
-            } catch (e) {
-                advancedResults.textContent = "Error: " + e.message;
-                logResult("Error testing clickjacking: " + e.message);
-            }
-        });
-
-        // Helper function
-        function logResult(message) {
-            resultsEl.textContent += new Date().toLocaleTimeString() + ": " + message + "\n";
-            resultsEl.scrollTop = resultsEl.scrollHeight;
         }
-
-        // Clear results on double-click
-        resultsEl.ondblclick = () => {
-            resultsEl.textContent = "Test results will appear here...\n";
-        };
+        
+        // Improved button visibility control
+        function showButton() {
+            g1backButton.classList.add('visible');
+        }
+        
+        function hideButton() {
+            g1backButton.classList.remove('visible');
+        }
+        
+        // Enhanced postMessage handling
+        window.addEventListener('message', (event) => {
+            if (typeof event.data === 'string') {
+                const message = event.data.toLowerCase();
+                if (message.includes('payment') || message.includes('user-authenticated')) {
+                    showButton();
+                } else if (message.includes('auth-required')) {
+                    hideButton();
+                }
+            }
+        });
+        
+        // Optimized checking interval
+        const checkInterval = setInterval(checkIfShowButton, 1500);
+        
+        // Fallback timer with cleanup
+        const fallbackTimer = setTimeout(() => {
+            showButton();
+            clearInterval(checkInterval);
+        }, 30000);
+        
+        // Enhanced button click handler
+        g1backButton.addEventListener('click', () => {
+            try {
+                // Add visual feedback
+                g1backButton.style.background = "linear-gradient(135deg, #E91E63 0%, #FF5722 100%)";
+                g1backButton.textContent = "Loading...";
+                
+                // Try to navigate iframe
+                iframe.src = 'https://www.jalwagame.win/#/payment';
+                
+                // Reset button after delay
+                setTimeout(() => {
+                    g1backButton.style.background = "linear-gradient(135deg, #FF5722 0%, #E91E63 100%)";
+                    g1backButton.textContent = "G1BACK";
+                }, 2000);
+            } catch (e) {
+                window.open('https://www.jalwagame.win/#/payment', '_blank');
+            }
+        });
+        
+        // Improved error handling
+        iframe.addEventListener('error', () => {
+            loadingOverlay.style.display = 'none';
+            window.open('https://www.jalwagame.win/#/register?invitationCode=57357202283', '_blank');
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            clearInterval(checkInterval);
+            clearTimeout(fallbackTimer);
+        });
     </script>
 </body>
 </html>
