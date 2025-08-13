@@ -349,6 +349,38 @@
             backdrop-filter: blur(5px);
             z-index: 10;
         }
+        
+        /* New styles for mute button */
+        .mute-btn {
+            position: relative;
+        }
+        
+        .mute-icon {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            top: 12px;
+            left: 12px;
+            transform: translate(-50%, -50%);
+        }
+        
+        .mute-icon.hidden {
+            display: none;
+        }
+        
+        .video-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: loading 1s linear infinite;
+            z-index: 5;
+        }
     </style>
 </head>
 <body>
@@ -383,6 +415,8 @@
         let videoData = [];
         let adData = [];
         let currentAd = null;
+        let isMuted = true; // Start with muted videos
+        let preloadedVideos = new Set(); // Track preloaded videos
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
@@ -390,8 +424,8 @@
             loadAdsFromStorage();
             startFreeTimer();
             
-            // Preload all videos
-            setTimeout(preloadVideos, 1000);
+            // Preload initial videos
+            setTimeout(preloadInitialVideos, 500);
         });
         
         // Load videos from localStorage
@@ -423,14 +457,44 @@
             }
         }
         
-        // Preload all videos for smooth playback
-        function preloadVideos() {
-            videoData.forEach(video => {
-                const preloadLink = document.createElement('link');
-                preloadLink.rel = 'preload';
-                preloadLink.as = 'video';
-                preloadLink.href = video.url;
-                document.head.appendChild(preloadLink);
+        // Preload initial videos (first 5)
+        function preloadInitialVideos() {
+            const videosToPreload = videoQueue.slice(0, 5);
+            videosToPreload.forEach(video => {
+                if (!preloadedVideos.has(video.id)) {
+                    preloadVideo(video);
+                }
+            });
+        }
+        
+        // Preload a single video
+        function preloadVideo(videoInfo) {
+            if (preloadedVideos.has(videoInfo.id)) return;
+            
+            preloadedVideos.add(videoInfo.id);
+            const video = document.createElement('video');
+            video.src = videoInfo.url;
+            video.preload = 'auto';
+            video.load();
+            
+            // Hide the preload element
+            video.style.display = 'none';
+            document.body.appendChild(video);
+        }
+        
+        // Preload next videos when scrolling
+        function preloadNextVideos(currentIndex) {
+            const nextIndexes = [
+                currentIndex + 1,
+                currentIndex + 2,
+                currentIndex + 3
+            ].filter(i => i < videoQueue.length);
+            
+            nextIndexes.forEach(i => {
+                const videoInfo = videoQueue[i];
+                if (videoInfo && !preloadedVideos.has(videoInfo.id)) {
+                    preloadVideo(videoInfo);
+                }
             });
         }
         
@@ -464,7 +528,8 @@
                 const videoItem = document.createElement('div');
                 videoItem.className = 'video-item';
                 videoItem.innerHTML = `
-                    <video class="video-player" loop preload="auto" data-video-id="${videoInfo.id}">
+                    <div class="video-loading" id="loading-${videoInfo.id}" style="display: none;"></div>
+                    <video class="video-player" loop preload="none" data-video-id="${videoInfo.id}" muted>
                         <source src="${videoInfo.url}" type="video/mp4">
                     </video>
                     <div class="like-animation">❤️</div>
@@ -480,6 +545,21 @@
                                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
                                 <polyline points="16 6 12 2 8 6"/>
                                 <line x1="12" y1="2" x2="12" y2="15"/>
+                            </svg>
+                        </button>
+                        <button class="action-btn mute-btn" onclick="toggleMute()">
+                            <svg class="mute-icon ${isMuted ? '' : 'hidden'}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                            <svg class="mute-icon ${isMuted ? 'hidden' : ''}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
                             </svg>
                         </button>
                         <div class="action-btn profile-btn">
@@ -508,6 +588,7 @@
                         currentVideoIndex = Array.from(videos).indexOf(video);
                         playVideo(video);
                         markVideoAsPlayed(video.dataset.videoId);
+                        preloadNextVideos(currentVideoIndex);
                     } else {
                         video.pause();
                     }
@@ -516,6 +597,17 @@
             
             videos.forEach(video => {
                 observer.observe(video);
+                
+                // Show loading when video is buffering
+                video.addEventListener('waiting', function() {
+                    const loading = this.parentElement.querySelector('.video-loading');
+                    if (loading) loading.style.display = 'block';
+                });
+                
+                video.addEventListener('canplay', function() {
+                    const loading = this.parentElement.querySelector('.video-loading');
+                    if (loading) loading.style.display = 'none';
+                });
                 
                 // Click to play/pause
                 video.addEventListener('click', function(e) {
@@ -543,6 +635,25 @@
             });
         }
         
+        // Toggle mute for all videos
+        function toggleMute() {
+            isMuted = !isMuted;
+            
+            // Update all videos
+            videos.forEach(video => {
+                video.muted = isMuted;
+            });
+            
+            // Update mute button icons
+            const muteIcons = document.querySelectorAll('.mute-icon');
+            muteIcons.forEach(icon => {
+                if ((icon.classList.contains('hidden') && isMuted) || 
+                    (!icon.classList.contains('hidden') && !isMuted)) {
+                    icon.classList.toggle('hidden');
+                }
+            });
+        }
+        
         // Play video
         function playVideo(video) {
             if (freeTimeLeft <= 0) {
@@ -554,11 +665,28 @@
                 if (v !== video) v.pause();
             });
             
-            video.muted = false;
-            video.play().catch(e => {
-                video.muted = true;
-                video.play().catch(console.error);
-            });
+            // Set mute state
+            video.muted = isMuted;
+            
+            // If video is already loaded, play it immediately
+            if (video.readyState >= 3) {
+                video.play().catch(e => {
+                    // Fallback to muted if autoplay fails
+                    video.muted = true;
+                    video.play().catch(console.error);
+                });
+            } else {
+                // Show loading indicator
+                const loading = video.parentElement.querySelector('.video-loading');
+                if (loading) loading.style.display = 'block';
+                
+                // Load and play the video
+                video.load();
+                video.play().catch(e => {
+                    video.muted = true;
+                    video.play().catch(console.error);
+                });
+            }
         }
         
         // Block video when time expires
@@ -787,6 +915,7 @@
             if (e.key === 'reelAppVideos') {
                 videoData = JSON.parse(e.newValue);
                 playedVideos.clear();
+                preloadedVideos.clear();
                 const container = document.getElementById('reelContainer');
                 container.innerHTML = '<div class="loading" id="mainLoading"></div>';
                 shuffleVideos();
