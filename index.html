@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReelScroll Admin Panel</title>
+    <title>ReelScroll - Short Video Platform</title>
     <style>
         * {
             margin: 0;
@@ -13,299 +13,785 @@
         }
         
         body {
-            background-color: #fafafa;
-            color: #262626;
-            padding: 20px;
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        .admin-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 20px;
+        #app {
+            height: 100vh;
+            position: relative;
         }
         
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #0095f6;
-        }
-        
-        .admin-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #dbdbdb;
-            border-radius: 8px;
-        }
-        
-        h2 {
-            margin-bottom: 15px;
-            color: #262626;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #dbdbdb;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        
-        button {
-            background-color: #0095f6;
-            color: white;
-            border: none;
+        /* Timer Display */
+        .timer-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
             padding: 10px 15px;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1000;
+            border: 2px solid #0095f6;
         }
         
-        button:hover {
-            background-color: #0080e5;
+        .timer-expired {
+            color: #ff4444;
+            animation: pulse 1s infinite;
         }
         
-        .video-list {
-            margin-top: 20px;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
-        .video-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 1px solid #dbdbdb;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            background: #fafafa;
+        .reel-container {
+            height: 100vh;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
         
-        .video-preview {
-            width: 100px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 5px;
-            margin-right: 15px;
-        }
-        
-        .video-info {
-            flex: 1;
-        }
-        
-        .video-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .delete-btn {
-            background-color: #ff4444;
-        }
-        
-        .delete-btn:hover {
-            background-color: #e53935;
-        }
-        
-        .status-message {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            text-align: center;
+        .reel-container::-webkit-scrollbar {
             display: none;
         }
         
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            display: block;
+        .video-item {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            background-color: #000;
         }
         
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            display: block;
+        .video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        
+        .video-controls {
+            position: absolute;
+            right: 12px;
+            bottom: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .control-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 4px;
+            font-size: 24px;
+        }
+        
+        .control-count {
+            font-size: 12px;
+            color: white;
+        }
+        
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+        
+        .video-info {
+            position: absolute;
+            bottom: 120px;
+            left: 12px;
+            max-width: 75%;
+        }
+        
+        .username {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .caption {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+        
+        .music {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .music-icon {
+            margin-right: 5px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .action-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(transparent, rgba(0,0,0,0.5));
+        }
+        
+        .action-input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .action-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0.5;
+        }
+        
+        .active-btn {
+            opacity: 1;
+            color: #0095f6;
+        }
+        
+        .like-animation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s;
+        }
+        
+        .show-like {
+            opacity: 0.8;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* Advertisement Modal */
+        .ad-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .ad-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .ad-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .ad-timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .ad-skip {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+        }
+        
+        /* Block overlay when time expires */
+        .video-blocked {
+            filter: blur(5px);
+        }
+        
+        .block-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .block-message {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .block-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ff4444;
+        }
+        
+        .block-subtitle {
+            font-size: 16px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .watch-ad-btn {
+            background: linear-gradient(45deg, #0095f6, #00ccff);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .watch-ad-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Loading spinner */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #0095f6;
+            border-radius: 50%;
+            animation: loading 1s linear infinite;
+        }
+        
+        @keyframes loading {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <h1>ReelScroll Admin Panel</h1>
+    <div id="app">
+        <!-- Timer Display -->
+        <div class="timer-display" id="timerDisplay">01:00</div>
         
-        <div id="statusMessage" class="status-message"></div>
-        
-        <div class="admin-section">
-            <h2>Add New Video</h2>
-            <form id="videoForm">
-                <div class="form-group">
-                    <label for="videoUrl">Video URL</label>
-                    <input type="url" id="videoUrl" required placeholder="https://example.com/video.mp4">
-                </div>
-                
-                <div class="form-group">
-                    <label for="profilePic">Profile Picture URL</label>
-                    <input type="url" id="profilePic" required placeholder="https://example.com/profile.jpg">
-                </div>
-                
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" required placeholder="@username">
-                </div>
-                
-                <div class="form-group">
-                    <label for="caption">Caption</label>
-                    <textarea id="caption" required placeholder="Add a caption..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="music">Music/Sound</label>
-                    <input type="text" id="music" required placeholder="Song Name - Artist">
-                </div>
-                
-                <div class="form-group">
-                    <label for="likes">Initial Likes</label>
-                    <input type="number" id="likes" value="0" min="0">
-                </div>
-                
-                <div class="form-group">
-                    <label for="comments">Initial Comments</label>
-                    <input type="number" id="comments" value="0" min="0">
-                </div>
-                
-                <button type="submit">Add Video</button>
-            </form>
+        <!-- Video Container -->
+        <div class="reel-container" id="reelContainer">
+            <div class="loading" id="mainLoading"></div>
         </div>
         
-        <div class="admin-section">
-            <h2>Current Videos</h2>
-            <div class="video-list" id="videoList">
-                <!-- Videos will be loaded here -->
+        <!-- Advertisement Modal -->
+        <div class="ad-modal" id="adModal">
+            <div class="ad-content">
+                <video class="ad-video" id="adVideo">
+                    <!-- Default ad video -->
+                    <source src="https://files.catbox.moe/sample-ad.mp4" type="video/mp4">
+                </video>
+                <div class="ad-timer" id="adTimer">Ad: 10s</div>
+                <button class="ad-skip" id="adSkip" onclick="skipAd()">Skip Ad</button>
             </div>
         </div>
     </div>
 
     <script>
+        // App State
+        let freeTimeLeft = 60; // 60 seconds free time
+        let timerInterval;
+        let currentVideoIndex = 0;
+        let videos = [];
+        let videoQueue = [];
+        let playedVideos = new Set();
+        let isAdPlaying = false;
+        let adTimeLeft = 10;
+        let adInterval;
+        
+        // Video data (loaded from localStorage)
+        let videoData = [];
+        
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVideosFromStorage();
+            startFreeTimer();
+        });
+        
         // Load videos from localStorage
-        function loadVideos() {
-            const videoList = document.getElementById('videoList');
-            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || [];
+        function loadVideosFromStorage() {
+            const storedVideos = localStorage.getItem('reelAppVideos');
             
-            videoList.innerHTML = '';
-            
-            if (videos.length === 0) {
-                videoList.innerHTML = '<p>No videos added yet.</p>';
-                return;
+            // Default videos if none in storage
+            if (!storedVideos || JSON.parse(storedVideos).length === 0) {
+                videoData = [
+                    {
+                        id: 1,
+                        url: 'https://files.catbox.moe/hzkafz.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/women/43.jpg',
+                        username: '@nature_lover',
+                        caption: 'Beautiful sunset at the beach 🌅 #nature',
+                        music: 'Ocean Waves - Nature Sounds',
+                        likes: 24500,
+                        comments: 1200
+                    },
+                    {
+                        id: 2,
+                        url: 'https://files.catbox.moe/ydvhlj.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/men/32.jpg',
+                        username: '@urban_explorer',
+                        caption: 'City lights at night 🌃 #urban',
+                        music: 'Night Vibes - City Sounds',
+                        likes: 18300,
+                        comments: 856
+                    },
+                    {
+                        id: 3,
+                        url: 'https://files.catbox.moe/f51hcd.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/women/68.jpg',
+                        username: '@adventure_seeker',
+                        caption: 'Mountain trekking adventure ⛰️ #outdoors',
+                        music: 'Alpine Winds - Nature Mix',
+                        likes: 32100,
+                        comments: 2400
+                    },
+                    {
+                        id: 4,
+                        url: 'https://files.catbox.moe/k72xyn.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/men/75.jpg',
+                        username: '@wildlife_photog',
+                        caption: 'Close encounter with wildlife 🦌 #animals',
+                        music: 'Forest Ambience - Wildlife Sounds',
+                        likes: 45700,
+                        comments: 3800
+                    }
+                ];
+                localStorage.setItem('reelAppVideos', JSON.stringify(videoData));
+            } else {
+                videoData = JSON.parse(storedVideos);
             }
             
-            videos.forEach((video, index) => {
+            shuffleVideos();
+            createVideoElements();
+        }
+        
+        // Shuffle videos randomly
+        function shuffleVideos() {
+            videoQueue = [...videoData];
+            for (let i = videoQueue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [videoQueue[i], videoQueue[j]] = [videoQueue[j], videoQueue[i]];
+            }
+        }
+        
+        // Create video elements
+        function createVideoElements() {
+            const container = document.getElementById('reelContainer');
+            const loading = document.getElementById('mainLoading');
+            loading.style.display = 'none';
+            
+            videoQueue.forEach((videoInfo, index) => {
                 const videoItem = document.createElement('div');
                 videoItem.className = 'video-item';
                 videoItem.innerHTML = `
-                    <img src="${video.profilePic}" class="video-preview" alt="Video Preview">
+                    <video class="video-player" loop data-video-id="${videoInfo.id}">
+                        <source src="${videoInfo.url}" type="video/mp4">
+                    </video>
+                    <div class="like-animation">❤️</div>
                     <div class="video-info">
-                        <h3>${video.username}</h3>
-                        <p>${video.caption}</p>
-                        <p>Likes: ${video.likes} | Comments: ${video.comments}</p>
-                        <p>${video.url}</p>
+                        <div class="username">${videoInfo.username}</div>
+                        <div class="caption">${videoInfo.caption}</div>
+                        <div class="music">
+                            <span class="music-icon">🎵</span>
+                            <span>${videoInfo.music}</span>
+                        </div>
                     </div>
-                    <div class="video-actions">
-                        <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
+                    <div class="video-controls">
+                        <button class="control-btn" onclick="toggleLike(this, ${videoInfo.id})">
+                            <div class="control-icon">🤍</div>
+                            <div class="control-count">${formatCount(videoInfo.likes)}</div>
+                        </button>
+                        <button class="control-btn" onclick="toggleComments(${videoInfo.id})">
+                            <div class="control-icon">💬</div>
+                            <div class="control-count">${formatCount(videoInfo.comments)}</div>
+                        </button>
+                        <button class="control-btn" onclick="shareVideo(${videoInfo.id})">
+                            <div class="control-icon">↗️</div>
+                            <div class="control-count">Share</div>
+                        </button>
+                        <img src="${videoInfo.profilePic}" class="profile-pic" alt="Profile">
+                    </div>
+                    <div class="action-bar">
+                        <input type="text" class="action-input" placeholder="Add a comment..." id="commentInput-${videoInfo.id}">
+                        <button class="action-btn" onclick="postComment(${videoInfo.id})">Post</button>
                     </div>
                 `;
-                videoList.appendChild(videoItem);
-            });
-        }
-        
-        // Add new video
-        document.getElementById('videoForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const videoUrl = document.getElementById('videoUrl').value;
-            const profilePic = document.getElementById('profilePic').value;
-            const username = document.getElementById('username').value;
-            const caption = document.getElementById('caption').value;
-            const music = document.getElementById('music').value;
-            const likes = parseInt(document.getElementById('likes').value) || 0;
-            const comments = parseInt(document.getElementById('comments').value) || 0;
-            
-            // Get existing videos
-            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || '[]');
-            
-            // Create new video ID
-            const newId = videos.length > 0 ? Math.max(...videos.map(v => v.id)) + 1 : 1;
-            
-            // Add new video
-            videos.push({
-                id: newId,
-                url: videoUrl,
-                profilePic: profilePic,
-                username: username,
-                caption: caption,
-                music: music,
-                likes: likes,
-                comments: comments
+                container.appendChild(videoItem);
             });
             
-            // Save to localStorage
-            localStorage.setItem('reelAppVideos', JSON.stringify(videos));
+            videos = document.querySelectorAll('.video-player');
+            setupVideoEvents();
             
-            // Update UI
-            loadVideos();
-            
-            // Show success message
-            showStatus('Video added successfully!', 'success');
-            
-            // Clear form
-            this.reset();
-            
-            // Trigger storage event to update main app
-            window.dispatchEvent(new Event('storage'));
-        });
-        
-        // Delete video
-        function deleteVideo(index) {
-            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || '[]');
-            
-            if (index >= 0 && index < videos.length) {
-                videos.splice(index, 1);
-                localStorage.setItem('reelAppVideos', JSON.stringify(videos));
-                loadVideos();
-                showStatus('Video deleted successfully!', 'success');
-                
-                // Trigger storage event to update main app
-                window.dispatchEvent(new Event('storage'));
+            // Play first video automatically
+            if (videos.length > 0) {
+                playVideo(videos[0]);
             }
         }
         
-        // Show status message
-        function showStatus(message, type) {
-            const statusElement = document.getElementById('statusMessage');
-            statusElement.textContent = message;
-            statusElement.className = 'status-message ' + type;
+        // Setup video events
+        function setupVideoEvents() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting && freeTimeLeft > 0) {
+                        currentVideoIndex = Array.from(videos).indexOf(video);
+                        playVideo(video);
+                        markVideoAsPlayed(video.dataset.videoId);
+                    } else {
+                        video.pause();
+                    }
+                });
+            }, { threshold: 0.8 });
             
-            setTimeout(() => {
-                statusElement.style.display = 'none';
-            }, 3000);
+            videos.forEach(video => {
+                observer.observe(video);
+                
+                // Click to play/pause
+                video.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('control-btn') || 
+                        e.target.classList.contains('action-input') ||
+                        e.target.classList.contains('action-btn')) {
+                        return;
+                    }
+                    
+                    if (freeTimeLeft > 0) {
+                        if (video.paused) {
+                            video.play();
+                        } else {
+                            video.pause();
+                        }
+                    }
+                });
+                
+                // Double tap to like
+                video.addEventListener('dblclick', function(e) {
+                    if (e.target.classList.contains('control-btn') || 
+                        e.target.classList.contains('action-input') ||
+                        e.target.classList.contains('action-btn')) {
+                        return;
+                    }
+                    
+                    const likeAnim = this.parentElement.querySelector('.like-animation');
+                    likeAnim.classList.add('show-like');
+                    setTimeout(() => {
+                        likeAnim.classList.remove('show-like');
+                    }, 500);
+                    
+                    const likeBtn = this.parentElement.querySelector('.control-btn');
+                    const videoId = this.dataset.videoId;
+                    toggleLike(likeBtn, videoId);
+                });
+            });
         }
         
-        // Initialize admin panel
-        document.addEventListener('DOMContentLoaded', function() {
-            loadVideos();
+        // Play video
+        function playVideo(video) {
+            if (freeTimeLeft <= 0) {
+                blockVideo(video);
+                return;
+            }
+            
+            videos.forEach(v => {
+                if (v !== video) v.pause();
+            });
+            
+            // Unmute when playing
+            video.muted = false;
+            
+            video.play().catch(e => {
+                console.log("Autoplay prevented:", e);
+                // If autoplay fails, show play button
+                video.muted = true;
+                video.play().catch(e => console.log("Muted autoplay also prevented"));
+            });
+        }
+        
+        // Block video when time expires
+        function blockVideo(video) {
+            video.classList.add('video-blocked');
+            
+            const videoItem = video.parentElement;
+            if (!videoItem.querySelector('.block-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'block-overlay';
+                overlay.innerHTML = `
+                    <div class="block-message">
+                        <div class="block-title">Time's Up!</div>
+                        <div class="block-subtitle">Watch a short ad to continue</div>
+                        <button class="watch-ad-btn" onclick="showAd()">Watch Ad (10s)</button>
+                    </div>
+                `;
+                videoItem.appendChild(overlay);
+            }
+        }
+        
+        // Mark video as played
+        function markVideoAsPlayed(videoId) {
+            playedVideos.add(videoId);
+            
+            // If all videos played, reshuffle
+            if (playedVideos.size >= videoData.length) {
+                playedVideos.clear();
+                shuffleVideos();
+                // Recreate video elements with new order
+                const container = document.getElementById('reelContainer');
+                container.innerHTML = '<div class="loading" id="mainLoading"></div>';
+                createVideoElements();
+            }
+        }
+        
+        // Start free timer
+        function startFreeTimer() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                freeTimeLeft--;
+                
+                const minutes = Math.floor(freeTimeLeft / 60);
+                const seconds = freeTimeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (freeTimeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = 'TIME UP';
+                    timerDisplay.classList.add('timer-expired');
+                    
+                    // Block current video
+                    if (videos[currentVideoIndex]) {
+                        blockVideo(videos[currentVideoIndex]);
+                    }
+                }
+            }, 1000);
+        }
+        
+        // Toggle like on video
+        function toggleLike(button, videoId) {
+            const icon = button.querySelector('.control-icon');
+            const count = button.querySelector('.control-count');
+            
+            if (icon.textContent === '❤️') {
+                icon.textContent = '🤍';
+                count.textContent = formatCount(parseInt(count.textContent.replace(/[^0-9]/g, '')) - 1);
+            } else {
+                icon.textContent = '❤️';
+                count.textContent = formatCount(parseInt(count.textContent.replace(/[^0-9]/g, '')) + 1);
+            }
+            
+            // Update in videoData
+            const videoIndex = videoData.findIndex(v => v.id == videoId);
+            if (videoIndex !== -1) {
+                if (icon.textContent === '❤️') {
+                    videoData[videoIndex].likes += 1;
+                } else {
+                    videoData[videoIndex].likes -= 1;
+                }
+                localStorage.setItem('reelAppVideos', JSON.stringify(videoData));
+            }
+        }
+        
+        // Format count (1K, 1M, etc.)
+        function formatCount(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+        
+        // Toggle comments
+        function toggleComments(videoId) {
+            alert(`Comments for video ${videoId} would be implemented here`);
+            // In a full implementation, this would show a comments section
+        }
+        
+        // Post comment
+        function postComment(videoId) {
+            const commentInput = document.getElementById(`commentInput-${videoId}`);
+            const commentText = commentInput.value.trim();
+            
+            if (commentText) {
+                // Update comment count
+                const videoIndex = videoData.findIndex(v => v.id == videoId);
+                if (videoIndex !== -1) {
+                    videoData[videoIndex].comments += 1;
+                    localStorage.setItem('reelAppVideos', JSON.stringify(videoData));
+                    
+                    // Update UI
+                    const commentBtn = document.querySelector(`button[onclick="toggleComments(${videoId})"]`);
+                    if (commentBtn) {
+                        const count = commentBtn.querySelector('.control-count');
+                        count.textContent = formatCount(videoData[videoIndex].comments);
+                    }
+                }
+                
+                commentInput.value = '';
+                alert(`Comment posted to video ${videoId}: "${commentText}"`);
+            }
+        }
+        
+        // Share video
+        function shareVideo(videoId) {
+            const video = videoData.find(v => v.id == videoId);
+            if (video) {
+                const shareUrl = `https://example.com/reel/${videoId}`;
+                alert(`Share this video: ${shareUrl}\n\n${video.caption}`);
+            }
+        }
+        
+        // Show advertisement
+        function showAd() {
+            const adModal = document.getElementById('adModal');
+            const adVideo = document.getElementById('adVideo');
+            const adTimer = document.getElementById('adTimer');
+            const adSkip = document.getElementById('adSkip');
+            
+            isAdPlaying = true;
+            adTimeLeft = 10;
+            adModal.style.display = 'flex';
+            
+            // Play ad video
+            adVideo.muted = false;
+            adVideo.play();
+            
+            // Ad timer
+            adInterval = setInterval(() => {
+                adTimeLeft--;
+                adTimer.textContent = `Ad: ${adTimeLeft}s`;
+                
+                if (adTimeLeft <= 5) {
+                    adSkip.style.display = 'block';
+                }
+                
+                if (adTimeLeft <= 0) {
+                    skipAd();
+                }
+            }, 1000);
+        }
+        
+        // Skip advertisement
+        function skipAd() {
+            const adModal = document.getElementById('adModal');
+            const adVideo = document.getElementById('adVideo');
+            const adSkip = document.getElementById('adSkip');
+            
+            clearInterval(adInterval);
+            adVideo.pause();
+            adVideo.currentTime = 0;
+            adModal.style.display = 'none';
+            adSkip.style.display = 'none';
+            isAdPlaying = false;
+            
+            // Grant more free time
+            freeTimeLeft += 60;
+            
+            // Update timer display
+            const timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.classList.remove('timer-expired');
+            
+            // Remove block overlays
+            document.querySelectorAll('.block-overlay').forEach(overlay => {
+                overlay.remove();
+            });
+            
+            // Remove video blocks
+            document.querySelectorAll('.video-blocked').forEach(video => {
+                video.classList.remove('video-blocked');
+            });
+            
+            // Restart timer
+            startFreeTimer();
+            
+            // Resume current video
+            if (videos[currentVideoIndex]) {
+                playVideo(videos[currentVideoIndex]);
+            }
+        }
+        
+        // Listen for storage changes (from admin panel)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'reelAppVideos') {
+                // Refresh videos when admin updates them
+                videoData = JSON.parse(e.newValue);
+                playedVideos.clear();
+                const container = document.getElementById('reelContainer');
+                container.innerHTML = '<div class="loading" id="mainLoading"></div>';
+                shuffleVideos();
+                createVideoElements();
+            }
         });
     </script>
 </body>
