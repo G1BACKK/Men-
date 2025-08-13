@@ -5,210 +5,359 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReelScroll Admin Panel</title>
     <style>
+        :root {
+            --primary: #0095f6;
+            --primary-dark: #0064e0;
+            --danger: #ff4444;
+            --danger-dark: #cc0000;
+            --success: #00c851;
+            --success-dark: #007e33;
+            --text-light: rgba(255,255,255,0.9);
+            --text-muted: rgba(255,255,255,0.6);
+            --bg-dark: #0f0f0f;
+            --bg-darker: #050505;
+            --bg-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-        
+
         body {
-            background-color: #fafafa;
-            color: #262626;
+            background: var(--bg-gradient);
+            color: var(--text-light);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             padding: 20px;
         }
-        
+
         .admin-container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 20px;
+            background: rgba(15,15,15,0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        
+
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 40px;
+            background: rgba(15,15,15,0.6);
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .admin-content {
+            display: none;
+            padding: 30px;
+        }
+
         h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #0095f6;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 28px;
         }
-        
-        .admin-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #dbdbdb;
-            border-radius: 8px;
-        }
-        
+
         h2 {
-            margin-bottom: 15px;
-            color: #262626;
+            margin-bottom: 20px;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
         }
-        
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        
+
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-muted);
         }
-        
-        input, textarea {
+
+        input, textarea, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #dbdbdb;
-            border-radius: 5px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: var(--text-light);
             font-size: 14px;
+            transition: all 0.3s ease;
         }
-        
-        textarea {
-            min-height: 80px;
-            resize: vertical;
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.2);
         }
-        
+
         button {
-            background-color: #0095f6;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
+            width: 100%;
         }
-        
+
         button:hover {
-            background-color: #0080e5;
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 149, 246, 0.3);
         }
-        
-        .video-list {
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .delete-btn {
+            background: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: var(--danger-dark);
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.3);
+        }
+
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .video-list, .ad-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
             margin-top: 20px;
         }
-        
-        .video-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 1px solid #dbdbdb;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            background: #fafafa;
+
+        .video-item, .ad-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
         }
-        
+
+        .video-item:hover, .ad-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.2);
+        }
+
         .video-preview {
-            width: 100px;
-            height: 150px;
+            width: 100%;
+            height: 160px;
             object-fit: cover;
-            border-radius: 5px;
-            margin-right: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: var(--bg-darker);
         }
-        
-        .video-info {
-            flex: 1;
+
+        .video-info, .ad-info {
+            margin-bottom: 15px;
         }
-        
-        .video-actions {
+
+        .video-title, .ad-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .video-stats, .ad-stats {
+            font-size: 14px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 15px;
+        }
+
+        .video-actions, .ad-actions {
             display: flex;
             gap: 10px;
         }
-        
-        .delete-btn {
-            background-color: #ff4444;
-        }
-        
-        .delete-btn:hover {
-            background-color: #e53935;
-        }
-        
+
         .status-message {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             text-align: center;
             display: none;
         }
-        
+
         .success {
-            background-color: #d4edda;
-            color: #155724;
+            background: rgba(0, 200, 81, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
             display: block;
         }
-        
+
         .error {
-            background-color: #f8d7da;
-            color: #721c24;
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
             display: block;
+        }
+
+        .color-preview {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <h1>ReelScroll Admin Panel</h1>
-        
-        <div id="statusMessage" class="status-message"></div>
-        
-        <div class="admin-section">
-            <h2>Add New Video</h2>
-            <form id="videoForm">
+        <div id="loginSection" class="login-container">
+            <h1>Admin Login</h1>
+            <form id="loginForm">
                 <div class="form-group">
-                    <label for="videoUrl">Video URL</label>
-                    <input type="url" id="videoUrl" required placeholder="https://example.com/video.mp4">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Enter admin password">
                 </div>
-                
-                <div class="form-group">
-                    <label for="profilePic">Profile Picture URL</label>
-                    <input type="url" id="profilePic" required placeholder="https://example.com/profile.jpg">
-                </div>
-                
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" required placeholder="@username">
-                </div>
-                
-                <div class="form-group">
-                    <label for="caption">Caption</label>
-                    <textarea id="caption" required placeholder="Add a caption..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="music">Music/Sound</label>
-                    <input type="text" id="music" required placeholder="Song Name - Artist">
-                </div>
-                
-                <div class="form-group">
-                    <label for="likes">Initial Likes</label>
-                    <input type="number" id="likes" value="0" min="0">
-                </div>
-                
-                <div class="form-group">
-                    <label for="comments">Initial Comments</label>
-                    <input type="number" id="comments" value="0" min="0">
-                </div>
-                
-                <button type="submit">Add Video</button>
+                <button type="submit">Login</button>
             </form>
         </div>
-        
-        <div class="admin-section">
-            <h2>Current Videos</h2>
-            <div class="video-list" id="videoList">
-                <!-- Videos will be loaded here -->
+
+        <div id="adminContent" class="admin-content">
+            <h1>ReelScroll Admin Panel</h1>
+            
+            <div id="statusMessage" class="status-message"></div>
+            
+            <div class="tab-container">
+                <div class="tab active" onclick="showTab('videos')">Manage Videos</div>
+                <div class="tab" onclick="showTab('ads')">Manage Ads</div>
+            </div>
+            
+            <div id="videosTab" class="tab-content active">
+                <h2>Add New Video</h2>
+                <form id="videoForm">
+                    <div class="form-group">
+                        <label for="videoUrl">Video URL</label>
+                        <input type="url" id="videoUrl" required placeholder="https://example.com/video.mp4">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profilePic">Profile Picture URL</label>
+                        <input type="url" id="profilePic" required placeholder="https://example.com/profile.jpg">
+                    </div>
+                    
+                    <button type="submit">Add Video</button>
+                </form>
+                
+                <h2>Current Videos</h2>
+                <div class="video-list" id="videoList">
+                    <!-- Videos will be loaded here -->
+                </div>
+            </div>
+            
+            <div id="adsTab" class="tab-content">
+                <h2>Add New Ad</h2>
+                <form id="adForm">
+                    <div class="form-group">
+                        <label for="adUrl">Ad Video URL</label>
+                        <input type="url" id="adUrl" required placeholder="https://example.com/ad.mp4">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="buttonText">Button Text</label>
+                        <input type="text" id="buttonText" placeholder="e.g. Shop Now, Learn More">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="buttonLink">Button Link</label>
+                        <input type="url" id="buttonLink" placeholder="https://example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="buttonColor">Button Color</label>
+                        <input type="color" id="buttonColor" value="#0095f6">
+                        <span class="color-preview" id="colorPreview" style="background: #0095f6;"></span>
+                    </div>
+                    
+                    <button type="submit">Add Ad</button>
+                </form>
+                
+                <h2>Current Ads</h2>
+                <div class="ad-list" id="adList">
+                    <!-- Ads will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Load videos from localStorage
+        const ADMIN_PASSWORD = "G1BACK";
+        
+        // Show tab content
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+        
+        // Color preview update
+        document.getElementById('buttonColor').addEventListener('input', function() {
+            document.getElementById('colorPreview').style.background = this.value;
+        });
+        
+        // Load videos from storage
         function loadVideos() {
             const videoList = document.getElementById('videoList');
-            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || [];
+            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || '[]');
             
             videoList.innerHTML = '';
             
             if (videos.length === 0) {
-                videoList.innerHTML = '<p>No videos added yet.</p>';
+                videoList.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No videos added yet</p>';
                 return;
             }
             
@@ -216,12 +365,13 @@
                 const videoItem = document.createElement('div');
                 videoItem.className = 'video-item';
                 videoItem.innerHTML = `
-                    <img src="${video.profilePic}" class="video-preview" alt="Video Preview">
+                    <img src="${video.profilePic}" class="video-preview" onerror="this.src='https://via.placeholder.com/300x160?text=Video+Preview'">
                     <div class="video-info">
-                        <h3>${video.username}</h3>
-                        <p>${video.caption}</p>
-                        <p>Likes: ${video.likes} | Comments: ${video.comments}</p>
-                        <p>${video.url}</p>
+                        <div class="video-title">Video #${video.id}</div>
+                        <div class="video-stats">
+                            <span>${formatCount(video.likes)} likes</span>
+                            <span>${formatCount(video.comments)} comments</span>
+                        </div>
                     </div>
                     <div class="video-actions">
                         <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
@@ -231,46 +381,113 @@
             });
         }
         
-        // Add new video
+        // Load ads from storage
+        function loadAds() {
+            const adList = document.getElementById('adList');
+            const ads = JSON.parse(localStorage.getItem('reelAppAds') || '[]');
+            
+            adList.innerHTML = '';
+            
+            if (ads.length === 0) {
+                adList.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No ads added yet</p>';
+                return;
+            }
+            
+            ads.forEach((ad, index) => {
+                const adItem = document.createElement('div');
+                adItem.className = 'ad-item';
+                adItem.innerHTML = `
+                    <div class="ad-info">
+                        <div class="ad-title">Ad #${index + 1}</div>
+                        <div class="ad-stats">
+                            <span>Button: ${ad.buttonText || 'None'}</span>
+                            <span style="color: ${ad.buttonColor || '#0095f6'}">●</span>
+                        </div>
+                    </div>
+                    <div class="ad-actions">
+                        <button class="delete-btn" onclick="deleteAd(${index})">Delete</button>
+                    </div>
+                `;
+                adList.appendChild(adItem);
+            });
+        }
+        
+        // Format count
+        function formatCount(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num;
+        }
+        
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadVideos();
+                loadAds();
+            } else {
+                showStatus('Incorrect password!', 'error');
+            }
+        });
+        
+        // Add video form
         document.getElementById('videoForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const videoUrl = document.getElementById('videoUrl').value;
             const profilePic = document.getElementById('profilePic').value;
-            const username = document.getElementById('username').value;
-            const caption = document.getElementById('caption').value;
-            const music = document.getElementById('music').value;
-            const likes = parseInt(document.getElementById('likes').value) || 0;
-            const comments = parseInt(document.getElementById('comments').value) || 0;
             
-            // Get existing videos
             const videos = JSON.parse(localStorage.getItem('reelAppVideos') || '[]');
             
-            // Create new video ID
             const newId = videos.length > 0 ? Math.max(...videos.map(v => v.id)) + 1 : 1;
             
-            // Add new video
             videos.push({
                 id: newId,
                 url: videoUrl,
                 profilePic: profilePic,
-                username: username,
-                caption: caption,
-                music: music,
-                likes: likes,
-                comments: comments
+                likes: Math.floor(Math.random() * 50000) + 1000,
+                comments: Math.floor(Math.random() * 5000) + 100
             });
             
-            // Save to localStorage
             localStorage.setItem('reelAppVideos', JSON.stringify(videos));
-            
-            // Update UI
             loadVideos();
-            
-            // Show success message
             showStatus('Video added successfully!', 'success');
+            this.reset();
             
-            // Clear form
+            // Trigger storage event to update main app
+            window.dispatchEvent(new Event('storage'));
+        });
+        
+        // Add ad form
+        document.getElementById('adForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const adUrl = document.getElementById('adUrl').value;
+            const buttonText = document.getElementById('buttonText').value;
+            const buttonLink = document.getElementById('buttonLink').value;
+            const buttonColor = document.getElementById('buttonColor').value;
+            
+            const ads = JSON.parse(localStorage.getItem('reelAppAds') || '[]');
+            
+            ads.push({ 
+                url: adUrl,
+                buttonText: buttonText,
+                buttonLink: buttonLink,
+                buttonColor: buttonColor
+            });
+            
+            localStorage.setItem('reelAppAds', JSON.stringify(ads));
+            loadAds();
+            showStatus('Ad added successfully!', 'success');
             this.reset();
             
             // Trigger storage event to update main app
@@ -292,6 +509,21 @@
             }
         }
         
+        // Delete ad
+        function deleteAd(index) {
+            const ads = JSON.parse(localStorage.getItem('reelAppAds') || '[]');
+            
+            if (index >= 0 && index < ads.length) {
+                ads.splice(index, 1);
+                localStorage.setItem('reelAppAds', JSON.stringify(ads));
+                loadAds();
+                showStatus('Ad deleted successfully!', 'success');
+                
+                // Trigger storage event to update main app
+                window.dispatchEvent(new Event('storage'));
+            }
+        }
+        
         // Show status message
         function showStatus(message, type) {
             const statusElement = document.getElementById('statusMessage');
@@ -302,11 +534,6 @@
                 statusElement.style.display = 'none';
             }, 3000);
         }
-        
-        // Initialize admin panel
-        document.addEventListener('DOMContentLoaded', function() {
-            loadVideos();
-        });
     </script>
 </body>
 </html>
