@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReelScroll Premium</title>
+    <title>Short Video Platform</title>
     <style>
         :root {
             --primary: #0095f6;
             --primary-dark: #0064e0;
             --danger: #ff4444;
-            --danger-dark: #cc0000;
-            --success: #00c851;
-            --success-dark: #007e33;
             --text-light: rgba(255,255,255,0.9);
             --text-muted: rgba(255,255,255,0.6);
             --bg-dark: #0f0f0f;
             --bg-darker: #050505;
-            --bg-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
         }
 
         * {
@@ -27,20 +23,18 @@
         }
 
         body {
-            background: var(--bg-gradient);
+            background: var(--bg-dark);
             color: var(--text-light);
             height: 100vh;
             overflow: hidden;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         #app {
             height: 100vh;
             position: relative;
-            overflow: hidden;
         }
 
-        /* Premium Timer */
         .timer-display {
             position: fixed;
             top: 20px;
@@ -53,7 +47,6 @@
             z-index: 1000;
             border: 1px solid rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
             color: var(--primary);
             display: flex;
             align-items: center;
@@ -86,7 +79,6 @@
             20%, 40%, 60%, 80% { transform: translateX(3px); }
         }
 
-        /* Video Container */
         .reel-container {
             height: 100vh;
             scroll-snap-type: y mandatory;
@@ -105,7 +97,6 @@
             scroll-snap-align: start;
             position: relative;
             background-color: var(--bg-dark);
-            overflow: hidden;
         }
 
         .video-player {
@@ -113,10 +104,8 @@
             height: 100%;
             object-fit: cover;
             cursor: pointer;
-            transition: filter 0.3s ease;
         }
 
-        /* Premium Action Buttons */
         .video-actions {
             position: absolute;
             right: 16px;
@@ -139,34 +128,13 @@
             height: 48px;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
             backdrop-filter: blur(5px);
         }
 
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: 0.6s;
-        }
-
-        .action-btn:hover::before {
-            left: 100%;
-        }
-
         .action-btn:hover {
-            transform: translateY(-3px) scale(1.1);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .action-btn:active {
-            transform: translateY(0) scale(0.95);
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.1);
         }
 
         .action-icon {
@@ -181,10 +149,8 @@
             font-size: 11px;
             font-weight: 600;
             color: var(--text-light);
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
 
-        /* Like Button Animation */
         .like-btn .action-icon {
             fill: transparent;
             stroke: white;
@@ -195,7 +161,6 @@
             fill: #ff1744;
             stroke: #ff1744;
             animation: heartBeat 0.8s;
-            filter: drop-shadow(0 0 8px rgba(255, 23, 68, 0.6));
         }
 
         @keyframes heartBeat {
@@ -206,19 +171,11 @@
             70% { transform: scale(1); }
         }
 
-        /* Share Button Animation */
         .share-btn .action-icon {
             stroke: white;
             stroke-width: 2;
-            transform: rotate(-45deg);
         }
 
-        .share-btn:hover .action-icon {
-            stroke: var(--primary);
-            transform: rotate(0deg);
-        }
-
-        /* Profile Button */
         .profile-btn {
             width: 40px;
             height: 40px;
@@ -239,7 +196,6 @@
             object-fit: cover;
         }
 
-        /* Like Animation */
         .like-animation {
             position: absolute;
             top: 50%;
@@ -248,7 +204,6 @@
             font-size: 0;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.5s;
             color: #ff1744;
             text-shadow: 0 0 20px rgba(255, 23, 68, 0.8);
         }
@@ -265,7 +220,6 @@
             100% { transform: translate(-50%, -150%) scale(1.2); opacity: 0; }
         }
 
-        /* Ad Modal */
         .ad-modal {
             position: fixed;
             top: 0;
@@ -304,7 +258,6 @@
             font-weight: 600;
             color: white;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .ad-skip {
@@ -319,16 +272,8 @@
             font-weight: 600;
             cursor: pointer;
             display: none;
-            transition: all 0.3s ease;
         }
 
-        .ad-skip:hover {
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        /* Block Overlay */
         .video-blocked {
             filter: blur(5px) brightness(0.7);
         }
@@ -345,22 +290,18 @@
             justify-content: center;
             align-items: center;
             z-index: 100;
-            text-align: center;
-            padding: 20px;
         }
 
         .block-title {
             font-size: 24px;
             margin-bottom: 10px;
             color: var(--danger);
-            font-weight: 700;
         }
 
         .block-subtitle {
             font-size: 16px;
             color: var(--text-muted);
             margin-bottom: 30px;
-            max-width: 300px;
         }
 
         .watch-ad-btn {
@@ -372,20 +313,8 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(0, 149, 246, 0.3);
         }
 
-        .watch-ad-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 149, 246, 0.4);
-        }
-
-        .watch-ad-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Loading Spinner */
         .loading {
             position: absolute;
             top: 50%;
@@ -404,7 +333,6 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* Custom Ad Button */
         .ad-button {
             position: absolute;
             bottom: 30px;
@@ -418,24 +346,8 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
             z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ad-button:hover {
-            background: rgba(0,0,0,0.9);
-            transform: translateX(-50%) translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .ad-button-icon {
-            width: 16px;
-            height: 16px;
         }
     </style>
 </head>
@@ -452,14 +364,7 @@
                 <video class="ad-video" id="adVideo"></video>
                 <div class="ad-timer" id="adTimer">Ad: 10s</div>
                 <button class="ad-skip" id="adSkip" onclick="skipAd()">Skip Ad</button>
-                <button class="ad-button" id="customAdButton" onclick="handleAdButtonClick()">
-                    <svg class="ad-button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <line x1="10" y1="14" x2="21" y2="3"></line>
-                    </svg>
-                    <span id="adButtonText">Visit Website</span>
-                </button>
+                <button class="ad-button" id="customAdButton" onclick="handleAdButtonClick()">Visit Website</button>
             </div>
         </div>
     </div>
@@ -484,6 +389,9 @@
             loadVideosFromStorage();
             loadAdsFromStorage();
             startFreeTimer();
+            
+            // Preload all videos
+            setTimeout(preloadVideos, 1000);
         });
         
         // Load videos from localStorage
@@ -491,29 +399,8 @@
             const storedVideos = localStorage.getItem('reelAppVideos');
             
             if (!storedVideos || JSON.parse(storedVideos).length === 0) {
-                videoData = [
-                    {
-                        id: 1,
-                        url: 'https://files.catbox.moe/hzkafz.mp4',
-                        profilePic: 'https://randomuser.me/api/portraits/women/43.jpg',
-                        likes: Math.floor(Math.random() * 50000) + 1000,
-                        comments: Math.floor(Math.random() * 5000) + 100
-                    },
-                    {
-                        id: 2,
-                        url: 'https://files.catbox.moe/ydvhlj.mp4',
-                        profilePic: 'https://randomuser.me/api/portraits/men/32.jpg',
-                        likes: Math.floor(Math.random() * 50000) + 1000,
-                        comments: Math.floor(Math.random() * 5000) + 100
-                    },
-                    {
-                        id: 3,
-                        url: 'https://files.catbox.moe/f51hcd.mp4',
-                        profilePic: 'https://randomuser.me/api/portraits/women/68.jpg',
-                        likes: Math.floor(Math.random() * 50000) + 1000,
-                        comments: Math.floor(Math.random() * 5000) + 100
-                    }
-                ];
+                // Default empty state
+                videoData = [];
                 localStorage.setItem('reelAppVideos', JSON.stringify(videoData));
             } else {
                 videoData = JSON.parse(storedVideos);
@@ -528,24 +415,23 @@
             const storedAds = localStorage.getItem('reelAppAds');
             
             if (!storedAds || JSON.parse(storedAds).length === 0) {
-                adData = [
-                    {
-                        url: 'https://files.catbox.moe/sample-ad.mp4',
-                        buttonText: 'Learn More',
-                        buttonLink: 'https://example.com',
-                        buttonColor: '#0095f6'
-                    },
-                    {
-                        url: 'https://files.catbox.moe/sample-ad2.mp4',
-                        buttonText: 'Shop Now',
-                        buttonLink: 'https://example.com/shop',
-                        buttonColor: '#ff4444'
-                    }
-                ];
+                // Default empty state
+                adData = [];
                 localStorage.setItem('reelAppAds', JSON.stringify(adData));
             } else {
                 adData = JSON.parse(storedAds);
             }
+        }
+        
+        // Preload all videos for smooth playback
+        function preloadVideos() {
+            videoData.forEach(video => {
+                const preloadLink = document.createElement('link');
+                preloadLink.rel = 'preload';
+                preloadLink.as = 'video';
+                preloadLink.href = video.url;
+                document.head.appendChild(preloadLink);
+            });
         }
         
         // Shuffle videos randomly
@@ -561,13 +447,24 @@
         function createVideoElements() {
             const container = document.getElementById('reelContainer');
             const loading = document.getElementById('mainLoading');
+            
+            if (videoQueue.length === 0) {
+                loading.style.display = 'none';
+                container.innerHTML = `
+                    <div style="display: flex; height: 100%; justify-content: center; align-items: center; color: var(--text-muted);">
+                        No videos available. Admin can add videos in the admin panel.
+                    </div>
+                `;
+                return;
+            }
+            
             loading.style.display = 'none';
             
             videoQueue.forEach((videoInfo, index) => {
                 const videoItem = document.createElement('div');
                 videoItem.className = 'video-item';
                 videoItem.innerHTML = `
-                    <video class="video-player" loop data-video-id="${videoInfo.id}">
+                    <video class="video-player" loop preload="auto" data-video-id="${videoInfo.id}">
                         <source src="${videoInfo.url}" type="video/mp4">
                     </video>
                     <div class="like-animation">❤️</div>
@@ -580,12 +477,13 @@
                         </button>
                         <button class="action-btn share-btn" onclick="shareVideo(${videoInfo.id})">
                             <svg class="action-icon" viewBox="0 0 24 24">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                                <polyline points="16 6 12 2 8 6"/>
+                                <line x1="12" y1="2" x2="12" y2="15"/>
                             </svg>
                         </button>
                         <div class="action-btn profile-btn">
-                            <img src="${videoInfo.profilePic}" class="profile-pic" alt="Profile">
+                            <img src="${videoInfo.profilePic}" class="profile-pic" alt="Profile" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJhMTAgMTAgMCAxIDAgMTAgMTBBMTAgMTAgMCAwIDAgMTIgMnptMCAzYTcgNyAwIDEgMS0xMCAwIDcgNyAwIDAgMSAxMCAwem0wIDlhMiAyIDAgMSAwIDAtNCAyIDIgMCAwIDAgMCA0eiIgZmlsbD0id2hpdGUiLz48L3N2Zz4='">
                         </div>
                     </div>
                 `;
@@ -656,14 +554,10 @@
                 if (v !== video) v.pause();
             });
             
-            // Unmute when playing
             video.muted = false;
-            
             video.play().catch(e => {
-                console.log("Autoplay prevented:", e);
-                // If autoplay fails, show play button
                 video.muted = true;
-                video.play().catch(e => console.log("Muted autoplay also prevented"));
+                video.play().catch(console.error);
             });
         }
         
@@ -689,10 +583,9 @@
             playedVideos.add(videoId);
             
             // If all videos played, reshuffle
-            if (playedVideos.size >= videoData.length) {
+            if (videoData.length > 0 && playedVideos.size >= videoData.length) {
                 playedVideos.clear();
                 shuffleVideos();
-                // Recreate video elements with new order
                 const container = document.getElementById('reelContainer');
                 container.innerHTML = '<div class="loading" id="mainLoading"></div>';
                 createVideoElements();
@@ -716,7 +609,6 @@
                     timerDisplay.textContent = 'TIME UP';
                     timerDisplay.classList.add('timer-expired');
                     
-                    // Block current video
                     if (videos[currentVideoIndex]) {
                         blockVideo(videos[currentVideoIndex]);
                     }
@@ -763,15 +655,40 @@
         // Share video
         function shareVideo(videoId) {
             const video = videoData.find(v => v.id == videoId);
-            if (video) {
-                const shareUrl = `https://example.com/reel/${videoId}`;
-                alert(`Share this video: ${shareUrl}`);
+            if (!video) return;
+            
+            const shareUrl = `${window.location.origin}?video=${videoId}`;
+            const shareText = `Check out this video! ${shareUrl}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Share Video',
+                    text: 'Check out this video!',
+                    url: shareUrl
+                }).catch(console.error);
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const tempInput = document.createElement('input');
+                document.body.appendChild(tempInput);
+                tempInput.value = shareUrl;
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                alert('Link copied to clipboard: ' + shareUrl);
             }
         }
         
         // Show advertisement
         function showAd() {
-            if (adData.length === 0) return;
+            if (adData.length === 0) {
+                // If no ads, just grant more time
+                freeTimeLeft += 60;
+                startFreeTimer();
+                document.querySelectorAll('.block-overlay').forEach(el => el.remove());
+                document.querySelectorAll('.video-blocked').forEach(el => el.classList.remove('video-blocked'));
+                if (videos[currentVideoIndex]) playVideo(videos[currentVideoIndex]);
+                return;
+            }
             
             // Select random ad
             currentAd = adData[Math.floor(Math.random() * adData.length)];
@@ -781,15 +698,19 @@
             const adTimer = document.getElementById('adTimer');
             const adSkip = document.getElementById('adSkip');
             const customAdButton = document.getElementById('customAdButton');
-            const adButtonText = document.getElementById('adButtonText');
             
             isAdPlaying = true;
             adTimeLeft = 10;
             adModal.style.display = 'flex';
             
             // Set ad button properties
-            adButtonText.textContent = currentAd.buttonText || 'Visit Website';
-            customAdButton.style.background = currentAd.buttonColor || '#0095f6';
+            if (currentAd.buttonText) {
+                customAdButton.textContent = currentAd.buttonText;
+            }
+            if (currentAd.buttonColor) {
+                customAdButton.style.background = currentAd.buttonColor;
+            }
+            customAdButton.style.display = currentAd.buttonLink ? 'block' : 'none';
             
             // Pause all videos while ad plays
             videos.forEach(v => v.pause());
@@ -864,7 +785,6 @@
         // Listen for storage changes (from admin panel)
         window.addEventListener('storage', function(e) {
             if (e.key === 'reelAppVideos') {
-                // Refresh videos when admin updates them
                 videoData = JSON.parse(e.newValue);
                 playedVideos.clear();
                 const container = document.getElementById('reelContainer');
@@ -876,6 +796,27 @@
                 adData = JSON.parse(e.newValue);
             }
         });
+
+        // Handle deep linking
+        function checkForDeepLink() {
+            const params = new URLSearchParams(window.location.search);
+            const videoId = params.get('video');
+            if (videoId && videoData.length > 0) {
+                const videoIndex = videoData.findIndex(v => v.id == videoId);
+                if (videoIndex !== -1) {
+                    // Scroll to the video
+                    setTimeout(() => {
+                        if (videos[videoIndex]) {
+                            videos[videoIndex].scrollIntoView();
+                            playVideo(videos[videoIndex]);
+                        }
+                    }, 1000);
+                }
+            }
+        }
+
+        // Initial deep link check
+        checkForDeepLink();
     </script>
 </body>
 </html>
