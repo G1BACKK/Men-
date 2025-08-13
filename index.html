@@ -3,213 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced G1BACK Button</title>
+    <title>ReelScroll Admin Panel</title>
     <style>
-        body { 
-            margin: 0; 
+        * {
+            margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-        #frame-container {
-            position: fixed;
-            top: 0;
-            left: 0;
+        
+        body {
+            background-color: #fafafa;
+            color: #262626;
+            padding: 20px;
+        }
+        
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0095f6;
+        }
+        
+        .admin-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #262626;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, textarea {
             width: 100%;
-            height: 100%;
-            background: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #dbdbdb;
+            border-radius: 5px;
+            font-size: 14px;
         }
-        #website-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            transition: opacity 0.3s ease;
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
         }
-        #g1back-button {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 9999;
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #FF5722 0%, #E91E63 100%);
+        
+        button {
+            background-color: #0095f6;
             color: white;
             border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 5px;
             font-weight: 600;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-            display: none;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            opacity: 0;
-            transform: translateY(20px);
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        #g1back-button.visible {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
+        
+        button:hover {
+            background-color: #0080e5;
         }
-        #g1back-button:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        
+        .video-list {
+            margin-top: 20px;
         }
-        #g1back-button:active {
-            transform: translateY(0) scale(0.98);
-        }
-        #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
+        
+        .video-item {
             display: flex;
-            justify-content: center;
             align-items: center;
-            z-index: 10000;
-            transition: opacity 0.5s ease;
+            padding: 15px;
+            border: 1px solid #dbdbdb;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background: #fafafa;
         }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #FF5722;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        
+        .video-preview {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 15px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .video-info {
+            flex: 1;
+        }
+        
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .delete-btn {
+            background-color: #ff4444;
+        }
+        
+        .delete-btn:hover {
+            background-color: #e53935;
+        }
+        
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div id="loading-overlay">
-        <div class="spinner"></div>
+    <div class="admin-container">
+        <h1>ReelScroll Admin Panel</h1>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <div class="admin-section">
+            <h2>Add New Video</h2>
+            <form id="videoForm">
+                <div class="form-group">
+                    <label for="videoUrl">Video URL</label>
+                    <input type="url" id="videoUrl" required placeholder="https://example.com/video.mp4">
+                </div>
+                
+                <div class="form-group">
+                    <label for="profilePic">Profile Picture URL</label>
+                    <input type="url" id="profilePic" required placeholder="https://example.com/profile.jpg">
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required placeholder="@username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="caption">Caption</label>
+                    <textarea id="caption" required placeholder="Add a caption..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="music">Music/Sound</label>
+                    <input type="text" id="music" required placeholder="Song Name - Artist">
+                </div>
+                
+                <div class="form-group">
+                    <label for="likes">Initial Likes</label>
+                    <input type="number" id="likes" value="0" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="comments">Initial Comments</label>
+                    <input type="number" id="comments" value="0" min="0">
+                </div>
+                
+                <button type="submit">Add Video</button>
+            </form>
+        </div>
+        
+        <div class="admin-section">
+            <h2>Current Videos</h2>
+            <div class="video-list" id="videoList">
+                <!-- Videos will be loaded here -->
+            </div>
+        </div>
     </div>
-    
-    <div id="frame-container">
-        <iframe 
-            id="website-iframe"
-            src="https://www.jalwagame.win/#/register?invitationCode=57357202283"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation allow-storage-access-by-user-activation"
-            allow="fullscreen"
-            loading="eager">
-        </iframe>
-    </div>
-    
-    <button id="g1back-button">G1BACK</button>
-    
+
     <script>
-        const g1backButton = document.getElementById('g1back-button');
-        const iframe = document.getElementById('website-iframe');
-        const loadingOverlay = document.getElementById('loading-overlay');
+        // Load videos from localStorage
+        function loadVideos() {
+            const videoList = document.getElementById('videoList');
+            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || [];
+            
+            videoList.innerHTML = '';
+            
+            if (videos.length === 0) {
+                videoList.innerHTML = '<p>No videos added yet.</p>';
+                return;
+            }
+            
+            videos.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.innerHTML = `
+                    <img src="${video.profilePic}" class="video-preview" alt="Video Preview">
+                    <div class="video-info">
+                        <h3>${video.username}</h3>
+                        <p>${video.caption}</p>
+                        <p>Likes: ${video.likes} | Comments: ${video.comments}</p>
+                        <p>${video.url}</p>
+                    </div>
+                    <div class="video-actions">
+                        <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
+                    </div>
+                `;
+                videoList.appendChild(videoItem);
+            });
+        }
         
-        // Improved URL detection with fallbacks
-        const paymentPages = ['/payment', '/checkout', '/deposit', '/premium'];
-        const userPages = ['/me', '/account', '/dashboard', '/profile'];
-        const authPages = ['/login', '/register', '/signup', '/auth'];
+        // Add new video
+        document.getElementById('videoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const videoUrl = document.getElementById('videoUrl').value;
+            const profilePic = document.getElementById('profilePic').value;
+            const username = document.getElementById('username').value;
+            const caption = document.getElementById('caption').value;
+            const music = document.getElementById('music').value;
+            const likes = parseInt(document.getElementById('likes').value) || 0;
+            const comments = parseInt(document.getElementById('comments').value) || 0;
+            
+            // Get existing videos
+            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || '[]');
+            
+            // Create new video ID
+            const newId = videos.length > 0 ? Math.max(...videos.map(v => v.id)) + 1 : 1;
+            
+            // Add new video
+            videos.push({
+                id: newId,
+                url: videoUrl,
+                profilePic: profilePic,
+                username: username,
+                caption: caption,
+                music: music,
+                likes: likes,
+                comments: comments
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('reelAppVideos', JSON.stringify(videos));
+            
+            // Update UI
+            loadVideos();
+            
+            // Show success message
+            showStatus('Video added successfully!', 'success');
+            
+            // Clear form
+            this.reset();
+            
+            // Trigger storage event to update main app
+            window.dispatchEvent(new Event('storage'));
+        });
         
-        // Show loading overlay initially
-        loadingOverlay.style.display = 'flex';
+        // Delete video
+        function deleteVideo(index) {
+            const videos = JSON.parse(localStorage.getItem('reelAppVideos') || '[]');
+            
+            if (index >= 0 && index < videos.length) {
+                videos.splice(index, 1);
+                localStorage.setItem('reelAppVideos', JSON.stringify(videos));
+                loadVideos();
+                showStatus('Video deleted successfully!', 'success');
+                
+                // Trigger storage event to update main app
+                window.dispatchEvent(new Event('storage'));
+            }
+        }
         
-        // Hide loading when iframe loads
-        iframe.addEventListener('load', () => {
+        // Show status message
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = 'status-message ' + type;
+            
             setTimeout(() => {
-                loadingOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 500);
-            }, 1000);
-        });
-        
-        // Enhanced URL checker with error handling
-        function checkIfShowButton() {
-            try {
-                const iframeUrl = iframe.contentWindow.location.href.toLowerCase();
-                
-                // Check for payment or user pages
-                const shouldShow = paymentPages.some(path => iframeUrl.includes(path)) || 
-                                  userPages.some(path => iframeUrl.includes(path));
-                
-                // Check for auth pages to hide button
-                const shouldHide = authPages.some(path => iframeUrl.includes(path));
-                
-                if (shouldShow) {
-                    showButton();
-                } else if (shouldHide) {
-                    hideButton();
-                }
-            } catch (e) {
-                // Cross-origin error handling
-                console.log("Cross-origin restriction - using fallback methods");
-                // Fallback to checking iframe src attribute
-                const iframeSrc = iframe.src.toLowerCase();
-                if (paymentPages.some(path => iframeSrc.includes(path))) {
-                    showButton();
-                }
-            }
+                statusElement.style.display = 'none';
+            }, 3000);
         }
         
-        // Improved button visibility control
-        function showButton() {
-            g1backButton.classList.add('visible');
-        }
-        
-        function hideButton() {
-            g1backButton.classList.remove('visible');
-        }
-        
-        // Enhanced postMessage handling
-        window.addEventListener('message', (event) => {
-            if (typeof event.data === 'string') {
-                const message = event.data.toLowerCase();
-                if (message.includes('payment') || message.includes('user-authenticated')) {
-                    showButton();
-                } else if (message.includes('auth-required')) {
-                    hideButton();
-                }
-            }
-        });
-        
-        // Optimized checking interval
-        const checkInterval = setInterval(checkIfShowButton, 1500);
-        
-        // Fallback timer with cleanup
-        const fallbackTimer = setTimeout(() => {
-            showButton();
-            clearInterval(checkInterval);
-        }, 30000);
-        
-        // Enhanced button click handler
-        g1backButton.addEventListener('click', () => {
-            try {
-                // Add visual feedback
-                g1backButton.style.background = "linear-gradient(135deg, #E91E63 0%, #FF5722 100%)";
-                g1backButton.textContent = "Loading...";
-                
-                // Try to navigate iframe
-                iframe.src = 'https://www.jalwagame.win/#/payment';
-                
-                // Reset button after delay
-                setTimeout(() => {
-                    g1backButton.style.background = "linear-gradient(135deg, #FF5722 0%, #E91E63 100%)";
-                    g1backButton.textContent = "G1BACK";
-                }, 2000);
-            } catch (e) {
-                window.open('https://www.jalwagame.win/#/payment', '_blank');
-            }
-        });
-        
-        // Improved error handling
-        iframe.addEventListener('error', () => {
-            loadingOverlay.style.display = 'none';
-            window.open('https://www.jalwagame.win/#/register?invitationCode=57357202283', '_blank');
-        });
-        
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            clearInterval(checkInterval);
-            clearTimeout(fallbackTimer);
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVideos();
         });
     </script>
 </body>
